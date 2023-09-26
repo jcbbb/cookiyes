@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "cookiyes",
       script: "bun",
-      args: "run ./index.js",
+      args: "run ./server.js",
       env: {
         PORT: 6996
       }
