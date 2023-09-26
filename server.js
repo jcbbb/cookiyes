@@ -4,9 +4,11 @@ import { migrate, seed } from "./db.js";
 let port = parseInt(process.env.PORT, 10) || 6996;
 
 let subcommand = Bun.argv[2];
-console.log({ subcommand });
-if (subcommand === "migrate") migrate();
-else if (subcommand === "seed") seed();
+if (subcommand) {
+  if (subcommand === "migrate") migrate();
+  else if (subcommand === "seed") seed();
+  process.exit(0);
+}
 
 let handlers = {
   "/": () => new Response(handle_home(), { headers: { "Content-Type": "text/html" } }),

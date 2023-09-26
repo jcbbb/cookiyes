@@ -46,7 +46,7 @@ html.dark {
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--default-text));
-  padding: var(--size-9) var(--size-6);
+  padding: var(--size-9) 0;
   font-family: 'Inter', sans-serif;
 }
 
@@ -63,8 +63,16 @@ h2 {
   text-transform: uppercase;
 }
 
+header {
+  padding: 0 var(--size-6);
+}
+
 .search, .section {
   margin-top: var(--size-8);
+}
+
+.search {
+  padding: 0 var(--size-6);
 }
 
 .form-control {
@@ -93,6 +101,7 @@ h2 {
   gap: var(--size-3);
   list-style-type: none;
   margin-top: var(--size-3);
+  overflow-x: auto;
 }
 
 .categories__item {
@@ -103,15 +112,27 @@ h2 {
   padding: var(--size-2);
 }
 
+.categories__heading, .recipes__heading {
+  padding: 0 var(--size-6);
+}
+
+.categories__item:first-child {
+  margin-left: var(--size-6);
+}
+
 .categories__item img {
   max-width: 100%;
 }
 
 .recipes__item {
-  flex-basis: 50%;
+  flex: 1 0 11rem;
   background-color: rgb(var(--purple));
-  border-radius: var(--size-3);
+  border-radius: var(--size-4);
   overflow: hidden;
+}
+
+.recipes__item:first-child {
+  margin-left: var(--size-6);
 }
 
 .recipes__item-image {

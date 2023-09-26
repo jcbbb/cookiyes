@@ -46,16 +46,16 @@ function home(categories = []) {
       <div class="search">
         <input type="search" name="query" class="form-control" placeholder="Search for food" />
       </div>
-      <section class="section">
-        <h2>Popular categories</h2>
+      <section class="section categories-section">
+        <h2 class="categories__heading">Popular categories</h2>
         <ul class="categories">
           ${categories.map((category) => {
             return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
           }).join("")}
         </ul>
       </section>
-      <section class="section">
-        <h2>Trending</h2>
+      <section class="section recipes-section">
+        <h2 class="recipes__heading">Trending</h2>
         <ul class="recipes">
           <li class="recipes__item">
             <div class="recipes__item-image">
