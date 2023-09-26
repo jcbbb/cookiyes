@@ -1,0 +1,78 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+  /* Base colors */
+  --caramel: 235, 219, 178;
+  --black: 40, 40, 40;
+  --purple: 211, 134, 155;
+  --blue: 131, 165, 152;
+  --red: 251, 73, 52;
+  --green: 184, 187, 38;
+  --aqua: 142, 192, 124;
+
+  --OS-dark: "(prefers-color-schem: dark)";
+  --OS-ligth: "(prefers-color-schem: dark)";
+
+  --bg: var(--caramel);
+  --default-text: var(--black);
+
+  --size-1: 0.25rem;
+  --size-2: 0.5rem;
+  --size-3: 0.75rem;
+  --size-4: 1rem;
+  --size-5: 1.25rem;
+  --size-6: 1.5rem;
+  --size-7: 1.75rem;
+  --size-8: 2rem;
+  --size-9: 3rem;
+  --size-10: 4rem;
+  --size-11: 5rem;
+  --size-12: 6rem;
+
+  --radius-1: 2px;
+  --radius-2: 5px;
+  --radius-3: 1rem;
+  --radius-4: 2rem;
+  --radius-5: 4rem;
+}
+
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--default-text));
+  padding: var(--size-9) var(--size-6);
+  font-family: 'Inter', sans-serif;
+}
+
+h1 {
+  font-size: var(--size-8);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: calc(var(--size-4) - 2px);
+  font-weight: 500;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+}
+
+.form-control {
+  background-color: #fffaec;
+  border: none;
+  padding: var(--size-3) var(--size-4);
+  outline: none;
+  width: 100%;
+  border-radius: var(--radius-3);
+  font-size: calc(var(--size-4) - 1px);
+  color: rgb(var(--black));
+}
+
+.form-control::placeholder {
+  color: rgba(var(--black), 0.8)
+}
