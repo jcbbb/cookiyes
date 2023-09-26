@@ -116,10 +116,6 @@ header {
   padding: 0 var(--size-6);
 }
 
-.categories__item:first-child {
-  margin-left: var(--size-6);
-}
-
 .categories__item img {
   max-width: 100%;
 }
@@ -131,8 +127,12 @@ header {
   overflow: hidden;
 }
 
-.recipes__item:first-child {
+.recipes__item:first-child, .categories__item:first-child {
   margin-left: var(--size-6);
+}
+
+.recipes__item:last-child, .categories__item:last-child {
+  margin-right: var(--size-6);
 }
 
 .recipes__item-image {
