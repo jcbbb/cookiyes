@@ -9,15 +9,13 @@ html {
   --caramel-400: 243, 234, 210;
   --caramel-700: 212, 177, 89;
   --black: 40, 40, 40;
+  --black-700: 29, 32, 33;
   --white: 255, 255, 255;
   --purple: 211, 134, 155;
   --blue: 131, 165, 152;
   --red: 251, 73, 52;
   --green: 184, 187, 38;
   --aqua: 142, 192, 124;
-
-  --bg: var(--caramel);
-  --default-text: var(--black);
 
   --size-1: 0.25rem;
   --size-2: 0.5rem;
@@ -37,10 +35,24 @@ html {
   --radius-3: 1rem;
   --radius-4: 2rem;
   --radius-5: 4rem;
+
+  /* Default colors */
+  --bg: var(--caramel);
+  --default-text: var(--black);
+
+  /* Form control */
+  --form-control-bg: var(--caramel-400);
+  --form-control-color: var(--black);
 }
 
 html.dark {
   --bg: var(--black);
+
+  /* Form control */
+  --form-control-bg: var(--black-700);
+  --form-control-color: var(--white);
+
+  --default-text: var(--white);
 }
 
 body {
@@ -76,14 +88,15 @@ header {
 }
 
 .form-control {
-  background-color: rgb(var(--caramel-400));
+  --bg: var(--form-control-bg);
+  --color: var(--form-control-color);
+  background-color: rgb(var(--bg));
   border: none;
   padding: var(--size-3) var(--size-4);
-  outline: none;
   width: 100%;
   border-radius: var(--radius-3);
   font-size: calc(var(--size-4) - 1px);
-  color: rgb(var(--black));
+  color: rgb(var(--color));
   outline: 2px solid transparent;
   transition: outline-color 150ms;
 }
@@ -93,7 +106,7 @@ header {
 }
 
 .form-control::placeholder {
-  color: rgba(var(--black), 0.8)
+  color: rgba(var(--color), 0.6)
 }
 
 .categories, .recipes {

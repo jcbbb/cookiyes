@@ -17,7 +17,8 @@ export function layout(content) {
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
         <script>
           function set_theme() {
-              document.documentElement.className = Telegram.WebApp.colorScheme;
+              document.documentElement.className = "dark";
+              // document.documentElement.className = Telegram.WebApp.colorScheme;
           }
           Telegram.WebApp.onEvent("themeChanged", set_theme);
           set_theme();
@@ -50,8 +51,8 @@ function home(categories = []) {
         <h2 class="categories__heading">Popular categories</h2>
         <ul class="categories">
           ${categories.map((category) => {
-            return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
-          }).join("")}
+    return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
+  }).join("")}
         </ul>
       </section>
       <section class="section recipes-section">
