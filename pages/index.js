@@ -48,7 +48,7 @@ function home(categories = [], recipes = []) {
       </div>
       <section>
         <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Popular categories</h2>
-        <ul class="flex gap-3 mt-3 overflow-x-auto">
+        <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
           ${categories.map((category) => {
             return `<li style="background-color: ${category.bg_hex}" class="first:ml-6 last:mr-6 w-16 h-16 shrink-0 rounded-full p-2"><img src="${category.preview_url}" /></li>`
           }).join("")}
@@ -56,7 +56,7 @@ function home(categories = [], recipes = []) {
       </section>
       <section>
         <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Trending</h2>
-        <ul class="flex gap-3 mt-3 overflow-x-auto">
+        <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
           ${recipes.map((recipe) => {
             return `
               <li class="flex-1 basis-44 shrink-0 bg-purple rounded-2xl relative overflow-hidden first:ml-6 last:mr-6">

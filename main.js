@@ -11,9 +11,11 @@ Telegram.WebApp.BackButton.onClick = async () => {
 
 Telegram.WebApp.BackButton.show();
 
-Telegram.WebApp.Text = "New recipe";
 Telegram.WebApp.MainButton.isVisible = true;
+Telegram.WebApp.setText("NEW RECIPE")
 Telegram.WebApp.MainButton.onClick = () => {
+  console.log("HERE");
+  console.log(navigation);
   navigation.navigate("/recipes/new");
 }
 Telegram.WebApp.MainButton.show();
