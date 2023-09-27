@@ -110,9 +110,12 @@ async function on_recipe_save() {
   let new_recipe_form = document.getElementById("new-recipe-form");
   let body = new FormData(new_recipe_form);
   Telegram.WebApp.MainButton.showProgress();
+  Telegram.WebApp.MainButton.setText("SAVING");
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
   console.log({ response });
   Telegram.WebApp.MainButton.hideProgress();
+  Telegram.WebApp.MainButton.setText("SAVE RECIPE");
 }
 
 on_navigate(async ({ from_path, to_path }) => {
@@ -146,6 +149,7 @@ on_navigate(async ({ from_path, to_path }) => {
       if (to_path === "/") {
         Telegram.WebApp.MainButton.offClick(on_recipe_save);
         Telegram.WebApp.MainButton.onClick(navigate_to_new);
+        Telegram.WebApp.MainButton.setText("NEW RECIPE");
       } else if (to_path === "/recipes/new") {
         Telegram.WebApp.MainButton.offClick(navigate_to_new);
         Telegram.WebApp.MainButton.setText("SAVE RECIPE")
