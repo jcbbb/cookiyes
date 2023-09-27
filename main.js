@@ -113,7 +113,6 @@ async function on_recipe_save() {
   Telegram.WebApp.MainButton.setText("SAVING");
   await new Promise((resolve) => setTimeout(resolve, 2000));
   let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
-  console.log({ response });
   Telegram.WebApp.MainButton.hideProgress();
   Telegram.WebApp.MainButton.setText("SAVE RECIPE");
 }

@@ -9,20 +9,20 @@ export function render_single(recipe) {
     </header>
     <main class="flex flex-col space-y-8 px-6">
       <section>
-        <h2 class="text-sm tracking-widest font-medium uppercase">
+        <h2 class="text-sm tracking-widest font-medium uppercase mb-3">
           Ingredients
         </h2>
-        <ul class="mt-3 list-disc list-inside">
+        <ul class="list-disc list-inside space-y-2">
           ${JSON.parse(recipe.ingredients).map((ing) => {
             return `<li>${ing}</li>`
           }).join("")}
         </ul>
       </section>
       <section>
-        <h2 class="text-sm tracking-widest font-medium uppercase">
+        <h2 class="text-sm tracking-widest font-medium uppercase mb-3">
           Instructions
         </h2>
-        <ol class="mt-3 list-decimal list-inside">
+        <ol class="list-decimal list-inside space-y-2">
           ${JSON.parse(recipe.instructions).map((ins) => {
             return `<li>${ins}</li>`
           }).join("")}
