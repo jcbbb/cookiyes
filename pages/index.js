@@ -3,7 +3,7 @@ import { db } from "../db.js";
 export function layout(content) {
   return `
     <!doctype html>
-    <html class="no-js" lang="">
+    <html>
       <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -12,7 +12,7 @@ export function layout(content) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="./main.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="/main.css" type="text/css" media="screen" />
         <title></title>
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
         <script>
@@ -25,22 +25,21 @@ export function layout(content) {
       </head>
       <body>
         ${content}
+        <script src="/main.js" type="module" defer async></script>
       </body>
     </html>
-`
+    `
 }
-
-export let render_home = (categories) => layout(home(categories));
 
 export function handle_home() {
   let query = db.query("select * from categories");
-  return render_home(query.all());
+  return new Response(home(query.all()), { headers: { "Content-Type": "text/html" } });
 }
 
 function home(categories = []) {
-  return `
+  return layout(`
     <header>
-      <h1 class="main-heading">What would you like to cook?</h1>
+    <h1 class="main-heading">What would you like to cook?</h1>
     </header>
     <main>
       <div class="search">
@@ -50,14 +49,15 @@ function home(categories = []) {
         <h2 class="categories__heading">Popular categories</h2>
         <ul class="categories">
           ${categories.map((category) => {
-    return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
-  }).join("")}
+            return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
+          }).join("")}
         </ul>
       </section>
       <section class="section recipes-section">
         <h2 class="recipes__heading">Trending</h2>
         <ul class="recipes">
           <li class="recipes__item">
+            <a href="/recipes/20" class="recipes__item-overlay-link"></a>
             <div class="recipes__item-image">
               <img src="https://images.unsplash.com/photo-1520218508822-998633d997e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" />
             </div>
@@ -78,7 +78,8 @@ function home(categories = []) {
             </div>
           </li>
         </ul>
-      </section>
+      </Section>
     </main>
-    <script src="./main.js" type="module" defer async></script>`
+  `
+  )
 }
