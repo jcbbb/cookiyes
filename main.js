@@ -1,25 +1,21 @@
 let ongoing_transition;
 
 Telegram.WebApp.BackButton.isVisible = true;
-Telegram.WebApp.BackButton.onClick = async () => {
-  Telegram.WebApp.close();
-  // if (navigation.canGoBack) {
-  //   await navigation.back().finished;
-  // } else {
-  //   Telegram.WebApp.close();
-  // }
-}
+Telegram.WebApp.BackButton.onClick(async () => {
+  if (navigation.canGoBack) {
+    await navigation.back().finished;
+  } else {
+    Telegram.WebApp.close();
+  }
+})
 
 Telegram.WebApp.BackButton.show();
 
 Telegram.WebApp.MainButton.isVisible = true;
 Telegram.WebApp.MainButton.setText("NEW RECIPE")
-Telegram.WebApp.MainButton.onClick = () => {
-  // console.log("HERE");
-  // console.log(navigation);
-  // navigation.navigate("/recipes/new");
-  window.location.href = "/recipes/new";
-}
+Telegram.WebApp.MainButton.onClick(() => {
+  navigation.navigate("/recipes/new");
+});
 
 Telegram.WebApp.MainButton.show();
 
