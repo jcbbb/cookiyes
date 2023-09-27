@@ -58,7 +58,6 @@ html.dark {
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--default-text));
-  padding: var(--size-9) 0;
   font-family: 'Inter', sans-serif;
 }
 
@@ -76,7 +75,9 @@ h2 {
 }
 
 header {
-  padding: 0 var(--size-6);
+  padding-left: var(--size-6);
+  padding-right: var(--size-6);
+  padding-top: var(--size-9);
 }
 
 .search, .section {

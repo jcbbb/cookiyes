@@ -1,5 +1,9 @@
 let ongoing_transition;
 
+Telegram.WebApp.BackButton.isVisible = true;
+Telegram.WebApp.BackButton.onClick = () => console.log("Back button clicked");
+Telegram.WebApp.BackButton.show();
+
 async function get_content(url) {
   let response = await fetch(url);
   return await response.text();
