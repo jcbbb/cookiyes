@@ -2,6 +2,7 @@ let ongoing_transition;
 
 Telegram.WebApp.BackButton.isVisible = true;
 Telegram.WebApp.BackButton.onClick = async () => {
+  Telegram.WebApp.close();
   // if (navigation.canGoBack) {
   //   await navigation.back().finished;
   // } else {

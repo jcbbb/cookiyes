@@ -50,7 +50,16 @@ function home(categories = [], recipes = []) {
         <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Popular categories</h2>
         <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
           ${categories.map((category) => {
-            return `<li style="background-color: ${category.bg_hex}" class="first:ml-6 last:mr-6 w-16 h-16 shrink-0 rounded-full p-2"><img src="${category.preview_url}" /></li>`
+            return `
+              <li class="first:ml-6 last:mr-6 shrink-0">
+                <a href="/c/${category.id}" class="flex flex-col items-center">
+                  <div style="background-color: ${category.bg_hex}" class="w-16 h-16 rounded-full p-2">
+                    <img src="${category.preview_url}" />
+                  </div>
+                  <span class="text-sm mt-1">${category.name}</span>
+                  </a>
+              </li>
+            `
           }).join("")}
         </ul>
       </section>
