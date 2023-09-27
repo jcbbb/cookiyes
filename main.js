@@ -13,9 +13,11 @@ Telegram.WebApp.BackButton.show();
 
 Telegram.WebApp.MainButton.isVisible = true;
 Telegram.WebApp.MainButton.setText("NEW RECIPE")
-Telegram.WebApp.MainButton.onClick(() => {
+Telegram.WebApp.MainButton.onClick(navigate_to_new);
+
+function navigate_to_new() {
   navigation.navigate("/recipes/new");
-});
+}
 
 Telegram.WebApp.MainButton.show();
 
@@ -104,6 +106,15 @@ function get_navigation_type(from_path, to_path) {
 
 let parser = new DOMParser();
 
+async function on_recipe_save() {
+  let new_recipe_form = document.getElementById("new-recipe-form");
+  let body = new FormData(new_recipe_form);
+  Telegram.WebApp.MainButton.showProgress();
+  let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
+  console.log({ response });
+  Telegram.WebApp.MainButton.hideProgress();
+}
+
 on_navigate(async ({ from_path, to_path }) => {
   // document.documentElement.classList.add("leave");
   let content = await get_content(to_path);
@@ -132,16 +143,13 @@ on_navigate(async ({ from_path, to_path }) => {
         }
       }
 
-      if (to_path === "/recipes/new") {
+      if (to_path === "/") {
+        Telegram.WebApp.MainButton.offClick(on_recipe_save);
+        Telegram.WebApp.MainButton.onClick(navigate_to_new);
+      } else if (to_path === "/recipes/new") {
+        Telegram.WebApp.MainButton.offClick(navigate_to_new);
         Telegram.WebApp.MainButton.setText("SAVE RECIPE")
-        Telegram.WebApp.MainButton.onClick(async () => {
-          let new_recipe_form = document.getElementById("new-recipe-form");
-          let body = new FormData(new_recipe_form);
-          Telegram.WebApp.MainButton.showProgress();
-          let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
-          console.log({ response });
-          Telegram.WebApp.MainButton.hideProgress();
-        });
+        Telegram.WebApp.MainButton.onClick(on_recipe_save);
       }
     }
   });
