@@ -38,22 +38,28 @@ export function render_new() {
       <h1 class="text-2xl font-bold">New recipe</h1>
     </header>
     <main class="p-6">
-      <form>
+      <form action="/recipes" method="post" id="new-recipe-form">
         <label>
           <span class="text-sm font-medium uppercase">Title</span>
-          <input type="text" class="form-control mt-2" />
+          <input type="text" class="form-control mt-2" name="title" />
         </label>
       </form>
     </main>
   `);
 }
 
-export async function handle_single_recipe_view(req) {
+export function handle_single_recipe_view(req) {
   let id = req.params.id;
   let recipe_query = db.query("select * from recipes where id = $id");
   return new Response(render_single(recipe_query.get({ $id: id })), { headers: { "Content-Type": "text/html" } });
 }
 
-export async function handle_new_recipe_view() {
+export function handle_new_recipe_view() {
   return new Response(render_new(), { headers: { "Content-Type": "text/html" } });
+}
+
+export async function handle_new_recipe(req) {
+  let formdata = await req.formData();
+  console.log(formdata);
+  return new Response("ok", { headers: { "Content-Type": "text/plain" } });
 }

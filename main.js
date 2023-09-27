@@ -105,9 +105,6 @@ function get_navigation_type(from_path, to_path) {
 let parser = new DOMParser();
 
 on_navigate(async ({ from_path, to_path }) => {
-  if (to_path === "/recipes/new") {
-    Telegram.WebApp.MainButton.setText("SAVE RECIPE")
-  }
   // document.documentElement.classList.add("leave");
   let content = await get_content(to_path);
   let doc = parser.parseFromString(content, "text/html");
@@ -133,6 +130,18 @@ on_navigate(async ({ from_path, to_path }) => {
           thumbnail = link_el.parentNode.querySelector("img");
           if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
         }
+      }
+
+      if (to_path === "/recipes/new") {
+        Telegram.WebApp.MainButton.setText("SAVE RECIPE")
+        Telegram.WebApp.MainButton.onClick(async () => {
+          let new_recipe_form = document.getElementById("new-recipe-form");
+          let body = new FormData(new_recipe_form);
+          Telegram.WebApp.MainButton.showProgress();
+          let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
+          console.log({ response });
+          Telegram.WebApp.MainButton.hideProgress();
+        });
       }
     }
   });
