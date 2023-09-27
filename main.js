@@ -2,7 +2,6 @@ let ongoing_transition;
 
 Telegram.WebApp.BackButton.isVisible = true;
 Telegram.WebApp.BackButton.onClick = async () => {
-  console.log({ navigation });
   // if (navigation.canGoBack) {
   //   await navigation.back().finished;
   // } else {
@@ -38,8 +37,8 @@ function should_not_intercept(e) {
 }
 
 function on_navigate(cb) {
-  if (!navigation) return;
-  navigation.addEventListener("navigate", (e) => {
+  if (!window.navigation) return;
+  window.navigation.addEventListener("navigate", (e) => {
     if (should_not_intercept(e)) return;
     let to = new URL(e.destination.url);
     if (location.origin !== to.origin) return;
