@@ -105,6 +105,9 @@ function get_navigation_type(from_path, to_path) {
 let parser = new DOMParser();
 
 on_navigate(async ({ from_path, to_path }) => {
+  if (to_path === "/recipes/new") {
+    Telegram.WebApp.MainButton.setText("SAVE RECIPE")
+  }
   // document.documentElement.classList.add("leave");
   let content = await get_content(to_path);
   let doc = parser.parseFromString(content, "text/html");
