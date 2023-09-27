@@ -17,8 +17,7 @@ export function layout(content) {
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
         <script>
           function set_theme() {
-              document.documentElement.className = "dark";
-              // document.documentElement.className = Telegram.WebApp.colorScheme;
+              document.documentElement.className = Telegram.WebApp.colorScheme;
           }
           Telegram.WebApp.onEvent("themeChanged", set_theme);
           set_theme();
