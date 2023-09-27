@@ -10,6 +10,9 @@ Telegram.WebApp.BackButton.onClick = async () => {
 }
 
 Telegram.WebApp.BackButton.show();
+Telegram.WebApp.MainButton.isVisible = true;
+Telegram.WebApp.MainButton.onClick = () => console.log("main button clicked");
+Telegram.WebApp.MainButton.show();
 
 async function get_content(url) {
   let response = await fetch(url);
@@ -57,10 +60,14 @@ function transition_helper({
   update_dom,
 }) {
   if (skip || !document.startViewTransition) {
-    let updateCallbackDone = Promise.resolve(update_dom()).then(() => undefined);
+    let updateCallbackDone = Promise.resolve(update_dom()).then(() => {
+      document.documentElement.classList.remove(...class_names);
+      document.documentElement.classList.add("enter");
+      return undefined;
+    });
 
     return {
-      ready: Promise.reject(Error('View transitions unsupported')),
+      ready: () => Promise.reject(Error('View transitions unsupported')),
       domUpdated: updateCallbackDone,
       updateCallbackDone,
       finished: updateCallbackDone,
@@ -92,6 +99,7 @@ function get_navigation_type(from_path, to_path) {
 let parser = new DOMParser();
 
 on_navigate(async ({ from_path, to_path }) => {
+  // document.documentElement.classList.add("leave");
   let content = await get_content(to_path);
   let doc = parser.parseFromString(content, "text/html");
   let type = get_navigation_type(from_path, to_path);
@@ -106,6 +114,8 @@ on_navigate(async ({ from_path, to_path }) => {
   }
 
   let transition = transition_helper({
+    // class_names: ["leave"],
+    skip: false,
     update_dom() {
       document.body.innerHTML = doc.body.innerHTML;
       if (type === "from-recipes") {

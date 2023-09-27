@@ -12,7 +12,7 @@ export function layout(content) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="/main.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="/main.min.css" type="text/css" media="screen" />
         <title></title>
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
         <script>
@@ -31,52 +31,44 @@ export function layout(content) {
     `
 }
 
-export function handle_home() {
-  let query = db.query("select * from categories");
-  return new Response(home(query.all()), { headers: { "Content-Type": "text/html" } });
+export function handle_home_view() {
+  let category_query = db.query("select * from categories");
+  let recipe_query = db.query("select * from recipes");
+  return new Response(home(category_query.all(), recipe_query.all()), { headers: { "Content-Type": "text/html" } });
 }
 
-function home(categories = []) {
+function home(categories = [], recipes = []) {
   return layout(`
-    <header>
-    <h1 class="main-heading">What would you like to cook?</h1>
+    <header class="pl-6 pr-6 pt-10 pb-8">
+      <h1 class="tracking-tight text-3xl font-bold">What would you like to cook?</h1>
     </header>
-    <main>
-      <div class="search">
+    <main class="flex flex-col space-y-8">
+      <div class="px-6">
         <input type="search" name="query" class="form-control" placeholder="Search for food" />
       </div>
-      <section class="section categories-section">
-        <h2 class="categories__heading">Popular categories</h2>
-        <ul class="categories">
+      <section>
+        <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Popular categories</h2>
+        <ul class="flex gap-3 mt-3 overflow-x-auto">
           ${categories.map((category) => {
-            return `<li style="background-color: ${category.bg_hex}" class="categories__item"><img src="${category.preview_url}" /></li>`
+            return `<li style="background-color: ${category.bg_hex}" class="first:ml-6 last:mr-6 w-16 h-16 shrink-0 rounded-full p-2"><img src="${category.preview_url}" /></li>`
           }).join("")}
         </ul>
       </section>
-      <section class="section recipes-section">
-        <h2 class="recipes__heading">Trending</h2>
-        <ul class="recipes">
-          <li class="recipes__item">
-            <a href="/recipes/20" class="recipes__item-overlay-link"></a>
-            <div class="recipes__item-image">
-              <img src="https://images.unsplash.com/photo-1520218508822-998633d997e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" />
-            </div>
-            <div class="recipes__info">
-              <span class="recipes__info-time">5 min</span>
-              <span class="recipes__info-title">Sandwich</span>
-              <span class="recipes__info-author">by Sarah</span>
-            </div>
-          </li>
-          <li class="recipes__item">
-            <div class="recipes__item-image">
-              <img src="https://images.unsplash.com/photo-1567620832903-9fc6debc209f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=480&q=80" />
-            </div>
-            <div class="recipes__info">
-              <span class="recipes__info-time">12 min</span>
-              <span class="recipes__info-title">Chicken legs</span>
-              <span class="recipes__info-author">by Anonymous</span>
-            </div>
-          </li>
+      <section>
+        <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Trending</h2>
+        <ul class="flex gap-3 mt-3 overflow-x-auto">
+          ${recipes.map((recipe) => {
+            return `
+              <li class="flex-1 basis-44 shrink-0 bg-purple rounded-2xl relative overflow-hidden first:ml-6 last:mr-6">
+                <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
+                <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
+                <div class="flex flex-col py-2 px-3">
+                  <span class="uppercase text-xs font-medium text-white/80">5 min</span>
+                  <span class="font-bold text-white mb-2">${recipe.name}</span>
+                  <span class="text-xs font-medium text-white">by Sarah</span>
+                </div>
+              </li>`
+          }).join("")}
         </ul>
       </Section>
     </main>

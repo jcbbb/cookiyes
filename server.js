@@ -1,6 +1,6 @@
-import { handle_home } from "./pages/index.js";
+import { handle_home_view } from "./pages/index.js";
 import { migrate, seed } from "./db.js";
-import { handle_single_recipe } from "./pages/recipe.js";
+import { handle_single_recipe_view, handle_new_recipe_view } from "./pages/recipe.js";
 
 let port = parseInt(process.env.PORT, 10) || 6996;
 
@@ -13,10 +13,11 @@ if (subcommand) {
 
 let handlers = {
   "GET": {
-    "^/$": handle_home,
+    "^/$": handle_home_view,
     "^/main.js": () => new Response(Bun.file("./main.js")),
-    "^/main.css": () => new Response(Bun.file("./main.css")),
-    "^/recipes/(?<id>\\w+)$": handle_single_recipe,
+    "^/main.min.css": () => new Response(Bun.file("./main.min.css")),
+    "^/recipes/new": handle_new_recipe_view,
+    "^/recipes/(?<id>\\w+)$": handle_single_recipe_view,
   }
 }
 
