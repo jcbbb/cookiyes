@@ -12,7 +12,7 @@ Telegram.WebApp.BackButton.onClick = async () => {
 Telegram.WebApp.BackButton.show();
 
 Telegram.WebApp.MainButton.isVisible = true;
-Telegram.WebApp.setText("NEW RECIPE")
+Telegram.WebApp.MainButton.setText("NEW RECIPE")
 Telegram.WebApp.MainButton.onClick = () => {
   console.log("HERE");
   console.log(navigation);
