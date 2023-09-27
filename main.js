@@ -2,11 +2,12 @@ let ongoing_transition;
 
 Telegram.WebApp.BackButton.isVisible = true;
 Telegram.WebApp.BackButton.onClick = async () => {
-  if (navigation.canGoBack) {
-    await navigation.back().finished;
-  } else {
-    Telegram.WebApp.close();
-  }
+  console.log({ navigation });
+  // if (navigation.canGoBack) {
+  //   await navigation.back().finished;
+  // } else {
+  //   Telegram.WebApp.close();
+  // }
 }
 
 Telegram.WebApp.BackButton.show();
@@ -14,10 +15,12 @@ Telegram.WebApp.BackButton.show();
 Telegram.WebApp.MainButton.isVisible = true;
 Telegram.WebApp.MainButton.setText("NEW RECIPE")
 Telegram.WebApp.MainButton.onClick = () => {
-  console.log("HERE");
-  console.log(navigation);
-  navigation.navigate("/recipes/new");
+  // console.log("HERE");
+  // console.log(navigation);
+  // navigation.navigate("/recipes/new");
+  window.location.href = "/recipes/new";
 }
+
 Telegram.WebApp.MainButton.show();
 
 async function get_content(url) {
@@ -35,6 +38,7 @@ function should_not_intercept(e) {
 }
 
 function on_navigate(cb) {
+  if (!navigation) return;
   navigation.addEventListener("navigate", (e) => {
     if (should_not_intercept(e)) return;
     let to = new URL(e.destination.url);
