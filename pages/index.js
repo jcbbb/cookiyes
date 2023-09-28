@@ -65,7 +65,7 @@ function home(categories = [], recipes = []) {
       </section>
       <section class="px-6">
         <h2 class="text-sm tracking-widest font-medium uppercase">Recipes</h2>
-        <ul class="grid grid-cols-2 mt-3 gap-3">
+        <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 gap-3">
           ${recipes.map((recipe) => {
             return `
               <li class="bg-purple rounded-2xl relative overflow-hidden">

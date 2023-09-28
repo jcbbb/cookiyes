@@ -100,6 +100,8 @@ body {
 ::view-transition-old(full-thumbnail) {
   animation: none;
   mix-blend-mode: normal;
+  height: 100%;
+  overflow: clip;
 }
 
 ::view-transition-image-pair(full-thumbnail) {

@@ -5,7 +5,7 @@ import { marked } from "marked";
 export function render_single(recipe) {
   return layout(`
     <header>
-      <img class="w-full object-cover h-96 full-thumbnail" src="${recipe.preview_url}" />
+      <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
       <h1 class="text-2xl p-6 font-bold">${recipe.name}</>
     </header>
     <main class="flex flex-col px-6">
