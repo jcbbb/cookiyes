@@ -36,6 +36,7 @@ function should_not_intercept(e) {
 }
 
 function on_navigate(cb) {
+  // Navigation API and View transitions are not supported on Safari so don't bother.
   if (!window.navigation) return;
   window.navigation.addEventListener("navigate", (e) => {
     if (should_not_intercept(e)) return;
@@ -121,8 +122,11 @@ async function on_recipe_save() {
   Telegram.WebApp.MainButton.setText("SAVING");
   await new Promise((resolve) => setTimeout(resolve, 2000));
   let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
+  if (response.redirected) navigation.navigate(response.url);
   Telegram.WebApp.MainButton.hideProgress();
-  Telegram.WebApp.MainButton.setText("SAVE RECIPE");
+  Telegram.WebApp.MainButton.setText("NEW RECIPE");
+  Telegram.WebApp.MainButton.offClick(on_recipe_save);
+  Telegram.WebApp.MainButton.onClick(navigate_to_new);
 }
 
 on_navigate(async ({ from_path, to_path }) => {
@@ -182,3 +186,88 @@ on_navigate(async ({ from_path, to_path }) => {
     if (thumbnail) thumbnail.style.viewTransitionName = "";
   })
 })
+
+
+// class Navigation {
+//   constructor() {
+//     this.current = window.location.pathname;
+//   }
+
+//   navigate(path, opts) {
+//     this.current = path;
+//     if (window.navigation) return window.navigation.navigate(path, opts);
+//     else {
+//       return window.history.pushState(null, "", path);
+//     }
+//   }
+
+//   get canGoBack() {
+//     if (window.navigation) return navigation.canGoBack;
+//   }
+
+//   on(event, handler) {
+//     if (window.navigation) window.navigation.addEventListener(event, handler);
+//     else {
+//       // handle history api
+//     }
+//   }
+
+//   off(event, handler) {
+//     if (window.navigation) window.navigation.removeEventListener(event, handler);
+//     else {}
+//   }
+// }
+
+// class Cookiyes {
+//   constructor(webapp) {
+//     this.webapp = webapp;
+//     this.navigation = new Navigation();
+//     this.main_button = this.webapp.MainButton;
+//     this.back_button = this.webapp.BackButton;
+
+//     this.main_button.isVisible = true;
+//     this.last_main_button_fn = null;
+
+//     this.navigation.on("navigate", this.on_navigate.bind(this));
+//   }
+
+//   on_navigate(e) {
+//     if (should_not_intercept(e)) return;
+//     let to = new URL(e.destination.url);
+//     if (location.origin !== to.origin) return;
+
+//     let from_path = location.pathname;
+
+//     if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname === "/") {
+//       e.intercept({
+//         scroll: "manual",
+//         async handler() {
+//           if (e.info === "ignore") return;
+//           await cb({ from_path, to_path: to.pathname })
+//           await ongoing_transition?.updateCallbackDone;
+
+//           e.scroll();
+
+//           if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
+//         }
+//       })
+//     }
+//   }
+
+//   static from(webapp) {
+//     return new Cookiyes(webapp);
+//   }
+
+//   path_to_main_button(path) {
+//     switch (path) {
+//       case "/": return "NEW RECIPE";
+//       case "/recipes/new": return "SAVE RECIPE";
+//       default: return "CONTINUE";
+//     }
+//   }
+
+//   on_new_recipe_click() {
+//   }
+// }
+
+// Cookiyes.from(window.Telegram.WebApp);

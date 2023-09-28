@@ -3,7 +3,6 @@ import { db } from "../db.js";
 import { marked } from "marked";
 
 export function render_single(recipe) {
-console.log({ recipe });
   return layout(`
     <header>
       <img class="w-full object-cover h-96 full-thumbnail" src="${recipe.preview_url}" />
@@ -52,7 +51,6 @@ export function render_new(categories) {
             }).join("")}
           </select>
         </label>
-        <button>Submit</button>
       </form>
     </main>
   `);
@@ -71,7 +69,6 @@ export function handle_new_recipe_view() {
 
 export async function handle_new_recipe(req) {
   let formdata = await req.formData();
-  console.log(formdata.getAll("instructions"));
   let $instructions = marked.parse(formdata.getAll("instructions").join(""));
   let $preview_url = formdata.get("preview_url");
   let $name = formdata.get("name");
