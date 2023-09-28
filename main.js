@@ -44,7 +44,7 @@ function on_navigate(cb) {
 
     let from_path = location.pathname;
 
-    if (to.pathname.startsWith("/recipes") || to.pathname === "/") {
+    if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname === "/") {
       e.intercept({
         scroll: "manual",
         async handler() {
@@ -96,11 +96,19 @@ function transition_helper({
 }
 
 function get_navigation_type(from_path, to_path) {
-  if (from_path === "/" && to_path.startsWith("/recipes")) {
+  if ((from_path === "/" || from_path.startsWith("/c")) && to_path.startsWith("/recipes")) {
     return "to-recipes";
   }
-  if (from_path.startsWith("/recipes") && to_path === "/") {
+  if (from_path.startsWith("/recipes") && (to_path === "/" || to_path.startsWith("/c"))) {
     return "from-recipes";
+  }
+
+  if (from_path === "/" && to_path.startsWith("/c")) {
+    return "to-category";
+  }
+
+  if (from_path.startsWith("/c") && to_path === "/") {
+    return "from-category";
   }
 }
 
@@ -131,6 +139,13 @@ on_navigate(async ({ from_path, to_path }) => {
       if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
     }
   }
+  if (type === "to-category") {
+    let link_el = document.querySelector(`a[href='${to_path}']`);
+    if (link_el) {
+      thumbnail = link_el.querySelector("div");
+      if (thumbnail) thumbnail.style.viewTransitionName = "full-category";
+    }
+  }
 
   let transition = transition_helper({
     // class_names: ["leave"],
@@ -142,6 +157,12 @@ on_navigate(async ({ from_path, to_path }) => {
         if (link_el) {
           thumbnail = link_el.parentNode.querySelector("img");
           if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
+        }
+      } else if (type === "from-category") {
+        let link_el = document.querySelector(`a[href='${from_path}']`);
+        if (link_el) {
+          thumbnail = link_el.querySelector("div");
+          if (thumbnail) thumbnail.style.viewTransitionName = "full-category";
         }
       }
 

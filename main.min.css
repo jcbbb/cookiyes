@@ -582,6 +582,10 @@ video {
   display: table;
 }
 
+.grid {
+  display: grid;
+}
+
 .h-16 {
   height: 4rem;
 }
@@ -630,12 +634,20 @@ video {
   list-style-type: disc;
 }
 
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .flex-col {
   flex-direction: column;
 }
 
 .items-center {
   align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
 }
 
 .gap-3 {
@@ -726,6 +738,11 @@ video {
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
 .text-sm {
@@ -891,6 +908,11 @@ body {
 
 .full-thumbnail {
   view-transition-name: full-thumbnail;
+  contain: layout;
+}
+
+.full-category {
+  view-transition-name: full-category;
   contain: layout;
 }
 
