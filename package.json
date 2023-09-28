@@ -4,5 +4,8 @@
     "run": "bun run ./server.js",
     "migrate": "bun run ./server.js migrate",
     "seed": "bun run ./server.js seed"
+  },
+  "dependencies": {
+    "marked": "^9.0.3"
   }
 }

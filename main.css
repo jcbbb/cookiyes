@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 html {
-  color-scheme: light; /* Base colors */ --caramel: 235, 219, 178;
+  color-scheme: light; /* Base colors */
+  --caramel: 235, 219, 178;
   --caramel-400: 243, 234, 210;
   --caramel-700: 212, 177, 89;
   --black: 40, 40, 40;
@@ -162,3 +163,21 @@ body {
 /*   from { transform: translateY(0); opacity: 1; } */
 /*   to { transform: translateY(-200px); opacity: 0; } */
 /* } */
+
+
+.recipe-instructions h2 {
+  @apply text-sm tracking-widest font-medium uppercase mb-3;
+}
+
+.recipe-instructions ul,
+.recipe-instructions ol {
+  @apply list-inside space-y-2 mb-8;
+}
+
+.recipe-instructions ul {
+  @apply list-disc;
+}
+
+.recipe-instructions ol {
+  @apply list-decimal;
+}

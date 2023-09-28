@@ -63,18 +63,18 @@ function home(categories = [], recipes = []) {
           }).join("")}
         </ul>
       </section>
-      <section>
-        <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Trending</h2>
-        <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
+      <section class="px-6">
+        <h2 class="text-sm tracking-widest font-medium uppercase">Recipes</h2>
+        <ul class="grid grid-cols-2 mt-3 gap-3">
           ${recipes.map((recipe) => {
             return `
-              <li class="flex-1 basis-44 shrink-0 bg-purple rounded-2xl relative overflow-hidden first:ml-6 last:mr-6">
+              <li class="bg-purple rounded-2xl relative overflow-hidden">
                 <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
                 <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
-                <div class="flex flex-col py-2 px-3">
+                <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
                   <span class="uppercase text-xs font-medium text-white/80">5 min</span>
                   <span class="font-bold text-white mb-2">${recipe.name}</span>
-                  <span class="text-xs font-medium text-white">by Sarah</span>
+                  <span class="text-xs font-medium text-white mt-auto">by Sarah</span>
                 </div>
               </li>`
           }).join("")}

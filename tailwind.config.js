@@ -18,6 +18,7 @@ module.exports = {
       // --aqua: 142, 192, 124;
       colors: {
         caramel: {
+          DEFAULT: "rgb(var(--caramel))",
           400: "rgb(var(--caramel-400))",
           700: "rgb(var(--caramel-700))",
         },

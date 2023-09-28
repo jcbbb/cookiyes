@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import { marked } from "marked";
 
 export let db = new Database("db.sqlite", { create: true });
 
@@ -27,7 +28,6 @@ export function migrate() {
       preview_url varchar(255) not null,
       created_by integer,
       instructions text default '',
-      ingredients text default '',
 
       foreign key(created_by) references users(id)
     );
@@ -123,14 +123,19 @@ let recipes = [
 
 export function seed() {
   let insert_category = db.prepare("insert into categories (preview_url, name, bg_hex, fg_hex) values ($preview_url, $name, $bg_hex, $fg_hex) on conflict (name) do nothing");
-  let insert_recipe = db.prepare("insert into recipes (name, created_by, preview_url, ingredients, instructions) values ($name, $created_by, $preview_url, $ingredients, $instructions) returning id");
+  let insert_recipe = db.prepare("insert into recipes (name, created_by, preview_url, instructions) values ($name, $created_by, $preview_url, $instructions) returning id");
   let insert_recipe_category = db.prepare("insert into recipe_categories (recipe_id, category_id) values ($recipe_id, $category_id)");
   let category_query = db.prepare("select id from categories where name = $name");
 
   let insert_recipe_trx = db.transaction(recipes => {
     for (let recipe of recipes) {
       let { $name, $preview_url, ingredients, instructions, categories, $created_by } = recipe;
-      let { id } = insert_recipe.get({ $name, $created_by, $preview_url, $ingredients: JSON.stringify(ingredients), $instructions: JSON.stringify(instructions) });
+      let { id } = insert_recipe.get({
+        $name,
+        $created_by,
+        $preview_url,
+        $instructions: marked.parse(`## Ingredients\n${ingredients.map((i) => "- " + i).join("\n")}\n## Instructions\n${instructions.map((v, i) => `${i + 1}. ${v}`).join("\n")}`),
+      });
       for (let $name of categories) {
         let category = category_query.get({ $name });
         insert_recipe_category.run({ $recipe_id: id, $category_id: category.id });

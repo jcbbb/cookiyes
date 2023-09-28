@@ -1,48 +1,58 @@
 import { layout } from "./index.js";
 import { db } from "../db.js";
+import { marked } from "marked";
 
 export function render_single(recipe) {
+console.log({ recipe });
   return layout(`
     <header>
       <img class="w-full object-cover h-96 full-thumbnail" src="${recipe.preview_url}" />
       <h1 class="text-2xl p-6 font-bold">${recipe.name}</>
     </header>
-    <main class="flex flex-col space-y-8 px-6">
-      <section>
-        <h2 class="text-sm tracking-widest font-medium uppercase mb-3">
-          Ingredients
-        </h2>
-        <ul class="list-disc list-inside space-y-2">
-          ${JSON.parse(recipe.ingredients).map((ing) => {
-    return `<li>${ing}</li>`
-  }).join("")}
-        </ul>
-      </section>
-      <section>
-        <h2 class="text-sm tracking-widest font-medium uppercase mb-3">
-          Instructions
-        </h2>
-        <ol class="list-decimal list-inside space-y-2">
-          ${JSON.parse(recipe.instructions).map((ins) => {
-    return `<li>${ins}</li>`
-  }).join("")}
-        </ol>
+    <main class="flex flex-col px-6">
+      <section class="recipe-instructions">
+       ${recipe.instructions}
       </section>
     </main>
   `);
 }
 
-export function render_new() {
+export function render_new(categories) {
   return layout(`
     <header class="pt-10 px-6">
       <h1 class="text-2xl font-bold">New recipe</h1>
     </header>
     <main class="p-6">
-      <form action="/recipes" method="post" id="new-recipe-form">
+      <form action="/recipes" method="post" id="new-recipe-form" class="flex flex-col space-y-3" enctype="multipart/form-data">
         <label>
           <span class="text-sm font-medium uppercase">Title</span>
-          <input type="text" class="form-control mt-2" name="title" />
+          <input type="text" class="form-control mt-2" name="name" autocomplete="off" spellcheck="off" required />
         </label>
+        <label>
+          <input type="hidden" name="instructions" value="## Ingredients\n" />
+          <span class="text-sm font-medium uppercase">Ingredients</span>
+          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="- One bread\n- 300ml milk" required></textarea>
+          <input type="hidden" name="instructions" value="\n" />
+        </label>
+        <label>
+          <input type="hidden" name="instructions" value="## Instructions\n" />
+          <span class="text-sm font-medium uppercase">Instructions</span>
+          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="1. Slice the bread\n2. Put in the milk" required></textarea>
+          <input type="hidden" name="instructions" value="\n" />
+        </label>
+        <label>
+          <span class="text-sm font-medium uppercase">Preview url</span>
+          <input type="url" class="form-control mt-2" name="preview_url" spellcheck="off" required />
+        </label>
+        <label>
+          <span class="text-sm font-medium uppercase">Category</span>
+          <select class="form-control mt-2 appearance-none" name="category_id">
+            ${categories.map((category) => {
+              return `<option value="${category.id}">${category.name}</option>`
+            }).join("")}
+          </select>
+        </label>
+        <button>Submit</button>
       </form>
     </main>
   `);
@@ -55,12 +65,22 @@ export function handle_single_recipe_view(req) {
 }
 
 export function handle_new_recipe_view() {
-  return new Response(render_new(), { headers: { "Content-Type": "text/html" } });
+  let category_query = db.query("select * from categories");
+  return new Response(render_new(category_query.all()), { headers: { "Content-Type": "text/html" } });
 }
 
 export async function handle_new_recipe(req) {
   let formdata = await req.formData();
-  return new Response("ok", { headers: { "Content-Type": "text/plain" } });
+  console.log(formdata.getAll("instructions"));
+  let $instructions = marked.parse(formdata.getAll("instructions").join(""));
+  let $preview_url = formdata.get("preview_url");
+  let $name = formdata.get("name");
+  let $category_id = formdata.get("category_id");
+  let insert_recipe_category = db.prepare("insert into recipe_categories (recipe_id, category_id) values ($recipe_id, $category_id)");
+  let insert_recipe = db.prepare("insert into recipes (name, created_by, preview_url, instructions) values ($name, $created_by, $preview_url, $instructions) returning id");
+  let { id } = insert_recipe.get({ $name, $preview_url, $instructions });
+  insert_recipe_category.run({ $category_id, $recipe_id: id });
+  return Response.redirect(`/recipes/${id}`);
 }
 
 function render_category_recipes(recipes, category) {
@@ -72,16 +92,16 @@ function render_category_recipes(recipes, category) {
     </header>
     <main class="p-6">
       <h1 class="text-lg font-bold">${category.name} recipes</h1>
-      <ul class="grid grid-cols-2 mt-3">
+      <ul class="grid grid-cols-2 mt-3 gap-3">
         ${recipes.map((recipe) => {
           return `
             <li class="bg-purple rounded-2xl relative overflow-hidden">
               <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
               <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
-              <div class="flex flex-col py-2 px-3">
+              <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
                 <span class="uppercase text-xs font-medium text-white/80">5 min</span>
                 <span class="font-bold text-white mb-2">${recipe.name}</span>
-                <span class="text-xs font-medium text-white">by Sarah</span>
+                <span class="text-xs font-medium text-white mt-auto">by Sarah</span>
               </div>
             </li>
           `
