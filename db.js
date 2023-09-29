@@ -50,6 +50,8 @@ let categories = [
   { $name: "Salad", $bg_hex: "#FB4934", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=zphNWHGZfV0i&format=png" },
   { $name: "Cookies", $bg_hex: "#B8BB26", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=12878&format=png" },
   { $name: "Fish", $bg_hex: "#8EC07C", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=16021&format=png" },
+  { $name: "Drinks", $bg_hex: "#83a598", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=lyMuG44EXuxH&format=png" },
+  { $name: "Pizza", $bg_hex: "#b8bb26", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=120099&format=png" }
 ]
 
 // let units = [{ $name: "Grams", $short_name: "gr" }, { $name: "Kilograms", $short_name: "kg" }, { $name: "Liters", $short_name: "l" }, { $name: "Pieces", $short_name: "pieces" }];

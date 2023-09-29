@@ -80,6 +80,18 @@ export async function handle_new_recipe(req) {
   return Response.redirect(`/recipes/${id}`);
 }
 
+export function render_search_view() {
+  return layout(
+    `<header class="pl-6 pr-6 pt-10 pb-8 main-header">
+      <input type="search" name="query" class="form-control" placeholder="Search for food" autofocus />
+    </header>`
+  );
+}
+
+export function handle_search_view() {
+  return new Response(render_search_view(), { headers: { "Content-Type": "text/html" } });
+}
+
 function render_category_recipes(recipes, category) {
   return layout(
     `<header class="flex items-center justify-center">
@@ -92,13 +104,13 @@ function render_category_recipes(recipes, category) {
       <ul class="grid grid-cols-2 mt-3 gap-3">
         ${recipes.map((recipe) => {
           return `
-            <li class="bg-purple rounded-2xl relative overflow-hidden">
+            <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black">
               <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
               <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
               <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                <span class="uppercase text-xs font-medium text-white/80">5 min</span>
-                <span class="font-bold text-white mb-2">${recipe.name}</span>
-                <span class="text-xs font-medium text-white mt-auto">by Sarah</span>
+                <span class="uppercase text-xs font-medium text-purple">5 min</span>
+                <span class="font-bold text-black mb-2">${recipe.name}</span>
+                <span class="text-xs font-medium text-black/80 mt-auto">by Sarah</span>
               </div>
             </li>
           `

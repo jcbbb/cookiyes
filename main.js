@@ -45,7 +45,7 @@ function on_navigate(cb) {
 
     let from_path = location.pathname;
 
-    if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname === "/") {
+    if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
       e.intercept({
         scroll: "manual",
         async handler() {

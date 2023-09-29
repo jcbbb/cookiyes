@@ -24,7 +24,9 @@ export function layout(content) {
         </script>
       </head>
       <body>
-        ${content}
+        <div class="max-w-lg mx-auto">
+          ${content}
+        </div>
         <script src="/main.js" type="module" defer async></script>
       </body>
     </html>
@@ -41,11 +43,11 @@ function home(categories = [], recipes = []) {
   return layout(`
     <header class="pl-6 pr-6 pt-10 pb-8">
       <h1 class="tracking-tight text-3xl font-bold">What would you like to cook?</h1>
+      <a href="/search" class="mt-6 block main-header">
+        <input type="search" name="query" class="form-control" placeholder="Search for food" />
+      </a>
     </header>
     <main class="flex flex-col space-y-8">
-      <div class="px-6">
-        <input type="search" name="query" class="form-control" placeholder="Search for food" />
-      </div>
       <section>
         <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Popular categories</h2>
         <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
@@ -65,16 +67,16 @@ function home(categories = [], recipes = []) {
       </section>
       <section class="px-6">
         <h2 class="text-sm tracking-widest font-medium uppercase">Recipes</h2>
-        <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 gap-3">
+        <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
           ${recipes.map((recipe) => {
             return `
-              <li class="bg-purple rounded-2xl relative overflow-hidden">
+              <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black">
                 <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
                 <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
                 <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                  <span class="uppercase text-xs font-medium text-white/80">5 min</span>
-                  <span class="font-bold text-white mb-2">${recipe.name}</span>
-                  <span class="text-xs font-medium text-white mt-auto">by Sarah</span>
+                  <span class="uppercase text-xs font-medium text-purple">5 min</span>
+                  <span class="font-bold mb-2">${recipe.name}</span>
+                  <span class="text-xs font-medium mt-auto text-black/80">by Sarah</span>
                 </div>
               </li>`
           }).join("")}
