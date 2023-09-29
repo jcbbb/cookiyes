@@ -1,6 +1,6 @@
 import { handle_home_view } from "./pages/index.js";
 import { migrate, seed } from "./db.js";
-import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view } from "./pages/recipe.js";
+import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view, handle_search_results } from "./pages/recipe.js";
 
 let port = parseInt(process.env.PORT, 10) || 6996;
 
@@ -15,10 +15,12 @@ let handlers = {
   "GET": {
     "^/$": handle_home_view,
     "^/main.js": () => new Response(Bun.file("./main.js")),
+    "^/search.js": () => new Response(Bun.file("./search.js")),
     "^/main.min.css": () => new Response(Bun.file("./main.min.css")),
     "^/recipes/new": handle_new_recipe_view,
     "^/recipes/(?<id>\\w+)$": handle_single_recipe_view,
     "^/c/(?<id>\\w+)$": handle_category_view,
+    "^/search/results": handle_search_results,
     "^/search": handle_search_view,
   },
   "POST": {

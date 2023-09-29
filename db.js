@@ -2,6 +2,7 @@ import { Database } from "bun:sqlite";
 import { marked } from "marked";
 
 export let db = new Database("db.sqlite", { create: true });
+db.exec("PRAGMA journal_mode = WAL;");
 
 export function migrate() {
   db.run(`

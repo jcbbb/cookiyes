@@ -1,5 +1,7 @@
 let ongoing_transition;
 
+window.navigation = null;
+
 Telegram.WebApp.BackButton.isVisible = true;
 Telegram.WebApp.BackButton.onClick(async () => {
   if (navigation.canGoBack) {
@@ -24,6 +26,31 @@ Telegram.WebApp.MainButton.show();
 async function get_content(url) {
   let response = await fetch(url);
   return await response.text();
+}
+
+function execute_scripts(el) {
+  let scripts = el.querySelectorAll("script[dynamic='true']");
+  for (let script of scripts) {
+    console.log("EXECUTER", script.src);
+    let new_script = document.createElement("script");
+    let script_text = document.createTextNode(script.innerHTML);
+
+    Array.from(script.attributes).forEach(attr => {
+      new_script.setAttribute(attr.name, attr.value);
+    });
+
+    new_script.async = false;
+    new_script.append(script_text);
+
+    let parent = script.parentElement;
+    try {
+      parent.insertBefore(new_script, script);
+    }
+    catch (e) {}
+    finally {
+      if (script.parentElement) script.parentElement.removeChild(script);
+    }
+  }
 }
 
 function should_not_intercept(e) {
@@ -97,18 +124,13 @@ function transition_helper({
 }
 
 function get_navigation_type(from_path, to_path) {
-  if ((from_path === "/" || from_path.startsWith("/c")) && to_path.startsWith("/recipes")) {
-    return "to-recipes";
-  }
-  if (from_path.startsWith("/recipes") && (to_path === "/" || to_path.startsWith("/c"))) {
-    return "from-recipes";
-  }
-
-  if (from_path === "/" && to_path.startsWith("/c")) {
+  if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && to_path.startsWith("/recipes")) {
+    return "to-recipe";
+  } else if (from_path.startsWith("/recipes") && (to_path === "/" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
+    return "from-recipe";
+  } else if (from_path === "/" && to_path.startsWith("/c")) {
     return "to-category";
-  }
-
-  if (from_path.startsWith("/c") && to_path === "/") {
+  } else if (from_path.startsWith("/c") && to_path === "/") {
     return "from-category";
   }
 }
@@ -130,13 +152,12 @@ async function on_recipe_save() {
 }
 
 on_navigate(async ({ from_path, to_path }) => {
-  // document.documentElement.classList.add("leave");
   let content = await get_content(to_path);
   let doc = parser.parseFromString(content, "text/html");
   let type = get_navigation_type(from_path, to_path);
 
   let thumbnail
-  if (type === "to-recipes") {
+  if (type === "to-recipe") {
     let link_el = document.querySelector(`a[href='${to_path}']`);
     if (link_el) {
       thumbnail = link_el.parentNode.querySelector("img");
@@ -152,11 +173,10 @@ on_navigate(async ({ from_path, to_path }) => {
   }
 
   let transition = transition_helper({
-    // class_names: ["leave"],
-    skip: false,
     update_dom() {
       document.body.innerHTML = doc.body.innerHTML;
-      if (type === "from-recipes") {
+      execute_scripts(document.body);
+      if (type === "from-recipe") {
         let link_el = document.querySelector(`a[href='${from_path}']`);
         if (link_el) {
           thumbnail = link_el.parentNode.querySelector("img");
@@ -188,86 +208,147 @@ on_navigate(async ({ from_path, to_path }) => {
 })
 
 
-// class Navigation {
-//   constructor() {
-//     this.current = window.location.pathname;
-//   }
+class NavigationEntry {
+  constructor({ url, index, sameDocument = false } = {}) {
+    this.id = Math.random().toString(32).slice(2);
+    this.index = index;
+    this.key = Math.random().toString(32).slice(2);
+    this.sameDocument = sameDocument;
+    this.url = url;
+  }
+}
 
-//   navigate(path, opts) {
-//     this.current = path;
-//     if (window.navigation) return window.navigation.navigate(path, opts);
-//     else {
-//       return window.history.pushState(null, "", path);
-//     }
-//   }
+class NavEvent {
+  constructor({ canIntercept = true, destination, formData = false, hashChange = false, downloadRequest = false, navigationType } = {}) {
+    this.canIntercept = canIntercept;
+    this.destination = destination;
+    this.hashChange = hashChange;
+    this.formData = formData;
+    this.downloadRequest = downloadRequest;
+    this.navigationType = navigationType;
+  }
 
-//   get canGoBack() {
-//     if (window.navigation) return navigation.canGoBack;
-//   }
+  async intercept({ handler }) {
+    if (handler) {
+      await handler();
+    }
+    window.history.pushState("", null, this.destination.url);
+  }
+  scroll() {}
+}
 
-//   on(event, handler) {
-//     if (window.navigation) window.navigation.addEventListener(event, handler);
-//     else {
-//       // handle history api
-//     }
-//   }
+class Navigation {
+  constructor() {
+    this.entries = [];
 
-//   off(event, handler) {
-//     if (window.navigation) window.navigation.removeEventListener(event, handler);
-//     else {}
-//   }
-// }
+    let entry = new NavigationEntry({ url: window.location.href, index: this.entries.length });
+    this.entries.push(entry);
+    this.entry = entry;
+    this.listeners = new Map([
+      ["navigate", new Set()]
+    ]);
 
-// class Cookiyes {
-//   constructor(webapp) {
-//     this.webapp = webapp;
-//     this.navigation = new Navigation();
-//     this.main_button = this.webapp.MainButton;
-//     this.back_button = this.webapp.BackButton;
+    this.links = document.querySelectorAll("a");
+    document.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", this.on_click.bind(this));
+    });
+  }
 
-//     this.main_button.isVisible = true;
-//     this.last_main_button_fn = null;
+  get currentEntry() {
+    return this.entry;
+  }
 
-//     this.navigation.on("navigate", this.on_navigate.bind(this));
-//   }
+  on_click(e) {
+    e.preventDefault();
+    this.navigate(e.currentTarget.href);
+  }
 
-//   on_navigate(e) {
-//     if (should_not_intercept(e)) return;
-//     let to = new URL(e.destination.url);
-//     if (location.origin !== to.origin) return;
+  navigate(url) {
+    let destination = new NavigationEntry({ url: new URL(url, window.location.origin).href, index: this.entries.length });
+    this.entry = destination;
+    this.entries.push(destination);
+    let event = new NavEvent({
+      destination,
+      navigationType: "push"
+    });
+    let navigate_handlers = this.listeners.get("navigate");
+    if (navigate_handlers.size === 0) {
+      window.history.pushState("", null, destination.url);
+      return;
+    }
 
-//     let from_path = location.pathname;
+    for (let handle of navigate_handlers) handle(event);
+  }
 
-//     if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname === "/") {
-//       e.intercept({
-//         scroll: "manual",
-//         async handler() {
-//           if (e.info === "ignore") return;
-//           await cb({ from_path, to_path: to.pathname })
-//           await ongoing_transition?.updateCallbackDone;
+  addEventListener(event, handler) {
+    if (!this.listeners.has(event)) throw new Error("Unsupported event");
+    this.listeners.get(event).add(handler);
+  }
 
-//           e.scroll();
+  removeEventListener(event, handler) {
+    if (!this.listeners.has(event)) throw new Error("Unsupported event");
+    this.listeners.get(event).delete(handler);
+  }
 
-//           if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
-//         }
-//       })
-//     }
-//   }
+  back() {
+    window.history.back();
+    this.entries.pop();
+  }
 
-//   static from(webapp) {
-//     return new Cookiyes(webapp);
-//   }
+  forward() {
+    return window.history.forward();
+  }
 
-//   path_to_main_button(path) {
-//     switch (path) {
-//       case "/": return "NEW RECIPE";
-//       case "/recipes/new": return "SAVE RECIPE";
-//       default: return "CONTINUE";
-//     }
-//   }
+  get canGoBack() {
+    return this.entries.length > 0;
+  }
+}
 
-//   on_new_recipe_click() {
-//   }
-// }
+class App {
+  constructor() {
+    this.navigation = window.navigation;
 
-// Cookiyes.from(window.Telegram.WebApp);
+    if (!this.navigation) this.navigation = new Navigation();
+
+    this.setup_navigation(this.on_navigate);
+  }
+
+  async on_navigate({ from_path, to_path }) {
+    let content = await get_content(to_path);
+    let doc = parser.parseFromString(content, "text/html");
+    let type = get_navigation_type(from_path, to_path);
+
+    let transition = transition_helper({
+      update_dom() {
+        document.body.innerHTML = doc.body.innerHTML;
+      }
+    });
+  }
+
+  setup_navigation(cb) {
+    this.navigation.addEventListener("navigate", (e) => {
+      if (should_not_intercept(e)) return;
+      let to = new URL(e.destination.url);
+      if (location.origin !== to.origin) return;
+
+      let from_path = location.pathname;
+
+      if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
+        e.intercept({
+          scroll: "manual",
+          async handler() {
+            if (e.info === "ignore") return;
+            await cb({ from_path, to_path: to.pathname })
+            await ongoing_transition?.updateCallbackDone;
+
+            e.scroll();
+
+            if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
+          }
+        })
+      }
+    });
+  }
+}
+
+let app = new App();

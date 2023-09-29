@@ -44,7 +44,7 @@ function home(categories = [], recipes = []) {
     <header class="pl-6 pr-6 pt-10 pb-8">
       <h1 class="tracking-tight text-3xl font-bold">What would you like to cook?</h1>
       <a href="/search" class="mt-6 block main-header">
-        <input type="search" name="query" class="form-control" placeholder="Search for food" />
+        <input type="search" name="query" class="form-control" placeholder="Search for food" readonly />
       </a>
     </header>
     <main class="flex flex-col space-y-8">

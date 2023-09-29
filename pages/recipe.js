@@ -81,11 +81,41 @@ export async function handle_new_recipe(req) {
 }
 
 export function render_search_view() {
-  return layout(
-    `<header class="pl-6 pr-6 pt-10 pb-8 main-header">
-      <input type="search" name="query" class="form-control" placeholder="Search for food" autofocus />
-    </header>`
-  );
+  return layout(`
+    <header class="pl-6 pr-6 pt-10 pb-8 main-header">
+      <form action="/search/results">
+        <input type="search" name="query" class="form-control" id="search-input" placeholder="Search for food" autofocus />
+      </form>
+    </header>
+    <main class="px-6">
+    </main>
+    <script src="/search.js" defer async dynamic="true"></script>
+  `);
+}
+
+export function render_search_results(recipes) {
+  return `
+    <ul class="bg-caramel-400 rounded-2xl">
+      ${recipes.map((recipe) => {
+        return `<li>
+          <a href="/recipes/${recipe.id}" class="flex p-2 gap-2 duration-300 rounded-2xl">
+            <img class="w-14 h-14 object-cover rounded-2xl" src="${recipe.preview_url}" />
+            <div class="flex flex-col">
+              <span class="uppercase text-xs font-medium text-purple">5 min</span>
+              <span class="font-bold text-black">${recipe.name}</span>
+              <span class="text-xs font-medium text-black/80 mt-auto">by Sarah</span>
+            </div>
+          </a>
+        </li>`
+      }).join("")}
+    </ul>`
+}
+
+export function handle_search_results(req) {
+  let url = new URL(req.url);
+  let query = url.searchParams.get("query").toLowerCase();
+  let recipe_query = db.query("select * from recipes where name like ?1");
+  return new Response(render_search_results(recipe_query.all(`%${query}%`)), { headers: { "Content-Type": "text/html" } });
 }
 
 export function handle_search_view() {
