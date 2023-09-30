@@ -16,6 +16,7 @@ let handlers = {
     "^/$": handle_home_view,
     "^/main.js": () => new Response(Bun.file("./main.js")),
     "^/search.js": () => new Response(Bun.file("./search.js")),
+    "^/navigation.js": () => new Response(Bun.file("./navigation.js")),
     "^/main.min.css": () => new Response(Bun.file("./main.min.css")),
     "^/recipes/new": handle_new_recipe_view,
     "^/recipes/(?<id>\\w+)$": handle_single_recipe_view,
