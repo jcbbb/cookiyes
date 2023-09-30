@@ -1,55 +1,34 @@
 let ongoing_transition;
 // window.navigation = null;
 
-Telegram.WebApp.BackButton.isVisible = true;
-Telegram.WebApp.BackButton.onClick(async () => {
-  if (navigation.canGoBack) {
-    await navigation.back().finished;
-  } else {
-    Telegram.WebApp.close();
-  }
-})
-
-Telegram.WebApp.BackButton.show();
-
-Telegram.WebApp.MainButton.isVisible = true;
-Telegram.WebApp.MainButton.setText("NEW RECIPE")
-Telegram.WebApp.MainButton.onClick(navigate_to_new);
-
-function navigate_to_new() {
-  navigation.navigate("/recipes/new");
-}
-
-Telegram.WebApp.MainButton.show();
-
 async function get_content(url) {
   let response = await fetch(url);
   return await response.text();
 }
 
-function execute_scripts(el) {
-  let scripts = el.querySelectorAll("script[dynamic='true']");
-  for (let script of scripts) {
-    let new_script = document.createElement("script");
-    let script_text = document.createTextNode(script.innerHTML);
+// function execute_scripts(el) {
+//   let scripts = el.querySelectorAll("script[dynamic='true']");
+//   for (let script of scripts) {
+//     let new_script = document.createElement("script");
+//     let script_text = document.createTextNode(script.innerHTML);
 
-    Array.from(script.attributes).forEach(attr => {
-      new_script.setAttribute(attr.name, attr.value);
-    });
+//     Array.from(script.attributes).forEach(attr => {
+//       new_script.setAttribute(attr.name, attr.value);
+//     });
 
-    new_script.async = false;
-    new_script.append(script_text);
+//     new_script.async = false;
+//     new_script.append(script_text);
 
-    let parent = script.parentElement;
-    try {
-      parent.insertBefore(new_script, script);
-    }
-    catch (e) {}
-    finally {
-      if (script.parentElement) script.parentElement.removeChild(script);
-    }
-  }
-}
+//     let parent = script.parentElement;
+//     try {
+//       parent.insertBefore(new_script, script);
+//     }
+//     catch (e) {}
+//     finally {
+//       if (script.parentElement) script.parentElement.removeChild(script);
+//     }
+//   }
+// }
 
 function should_not_intercept(e) {
   return (
@@ -59,34 +38,6 @@ function should_not_intercept(e) {
     e.formData
   )
 }
-
-function on_navigate(cb) {
-  // Navigation API and View transitions are not supported on Safari so don't bother.
-  if (!window.navigation) return;
-  window.navigation.addEventListener("navigate", (e) => {
-    if (should_not_intercept(e)) return;
-    let to = new URL(e.destination.url);
-    if (location.origin !== to.origin) return;
-
-    let from_path = location.pathname;
-
-    if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
-      e.intercept({
-        scroll: "manual",
-        async handler() {
-          if (e.info === "ignore") return;
-          await cb({ from_path, to_path: to.pathname })
-          await ongoing_transition?.updateCallbackDone;
-
-          e.scroll();
-
-          if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
-        }
-      })
-    }
-  })
-}
-
 
 function transition_helper({
   skip = false,
@@ -121,7 +72,7 @@ function transition_helper({
   return transition;
 }
 
-function get_navigation_type(from_path, to_path) {
+function get_nav_type(from_path, to_path) {
   if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && to_path.startsWith("/recipes")) {
     return "to-recipe";
   } else if (from_path.startsWith("/recipes") && (to_path === "/" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
@@ -130,6 +81,10 @@ function get_navigation_type(from_path, to_path) {
     return "to-category";
   } else if (from_path.startsWith("/c") && to_path === "/") {
     return "from-category";
+  } else if (from_path === "/" && to_path === "/search") {
+    return "to-search";
+  } else if (from_path === "/search" && to_path === "/") {
+    return "from-search";
   }
 }
 
@@ -150,9 +105,13 @@ async function on_recipe_save() {
 }
 
 class App {
-  constructor() {
+  constructor(webapp) {
     this.navigation = window.navigation;
     this.navigation_promise = null;
+    this.webapp = webapp;
+
+    this.main_btn = webapp.MainButton;
+    this.back_btn = webapp.MainButton;
 
     if (!this.navigation) {
       this.navigation_promise = import("/navigation.js").then((module) => {
@@ -160,64 +119,81 @@ class App {
       })
     }
 
-    this.setup_navigation(this.on_navigate);
+    this.setup_navigation(this.on_navigate.bind(this));
+    this.update_main_button();
   }
 
+  update_main_button(pathname) {
+    let text;
+    let is_visible = true;
+    switch (true) {
+      case pathname === "/recipes/new": {
+        text = "SAVE RECIPE";
+      } break;
+      case pathname === "/": {
+        text = "NEW RECIPE";
+      } break;
+      default:
+        text = "NEW RECIPE";
+    }
+
+    this.main_btn.setParams({ text, isVisible: is_visible });
+  }
+
+  view_transition(type, path) {
+    switch (true) {
+      case ["to-recipe", "from-recipe"].includes(type): {
+        let link_el = document.querySelector(`a[href='${path}']`);
+        let thumbnail
+        if (link_el) {
+          thumbnail = link_el.parentNode.querySelector("img");
+          if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
+        }
+        return () => {
+          if (thumbnail) thumbnail.style.viewTransitionName = "";
+        }
+      }
+      case ["to-category", "from-category"].includes(type): {
+        let link_el = document.querySelector(`a[href='${path}']`);
+        let thumbnail
+        if (link_el) {
+          thumbnail = link_el.querySelector("div");
+          if (thumbnail) thumbnail.style.viewTransitionName = "full-category";
+        }
+        return () => {
+          if (thumbnail) thumbnail.style.viewTransitionName = "";
+        }
+      }
+      case ["to-search", "from-search"].includes(type): {
+        let link_el = document.querySelector(`a[href='${path}']`);
+        if (link_el) link_el.style.viewTransitionName = "main-header";
+        return () => {
+          if (link_el) link_el.style.viewTransitionName = ""
+        }
+      }
+      default:
+        return () => {}
+    }
+  }
+
+
   async on_navigate({ from_path, to_path }) {
-    // console.log(app.navigation.entries);
     let content = await get_content(to_path);
     let doc = parser.parseFromString(content, "text/html");
-    let type = get_navigation_type(from_path, to_path);
+    let type = get_nav_type(from_path, to_path);
 
+    let done = this.view_transition(type, to_path);
 
-    let thumbnail
-    if (type === "to-recipe") {
-      let link_el = document.querySelector(`a[href='${to_path}']`);
-      if (link_el) {
-        thumbnail = link_el.parentNode.querySelector("img");
-        if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
-      }
-    }
-    if (type === "to-category") {
-      let link_el = document.querySelector(`a[href='${to_path}']`);
-      if (link_el) {
-        thumbnail = link_el.querySelector("div");
-        if (thumbnail) thumbnail.style.viewTransitionName = "full-category";
-      }
-    }
-
+    let ctx = this;
     let transition = transition_helper({
       update_dom() {
         document.body.innerHTML = doc.body.innerHTML;
-        if (type === "from-recipe") {
-          let link_el = document.querySelector(`a[href='${from_path}']`);
-          if (link_el) {
-            thumbnail = link_el.parentNode.querySelector("img");
-            if (thumbnail) thumbnail.style.viewTransitionName = "full-thumbnail";
-          }
-        } else if (type === "from-category") {
-          let link_el = document.querySelector(`a[href='${from_path}']`);
-          if (link_el) {
-            thumbnail = link_el.querySelector("div");
-            if (thumbnail) thumbnail.style.viewTransitionName = "full-category";
-          }
-        }
-
-        if (to_path === "/") {
-          Telegram.WebApp.MainButton.offClick(on_recipe_save);
-          Telegram.WebApp.MainButton.onClick(navigate_to_new);
-          Telegram.WebApp.MainButton.setText("NEW RECIPE");
-        } else if (to_path === "/recipes/new") {
-          Telegram.WebApp.MainButton.offClick(navigate_to_new);
-          Telegram.WebApp.MainButton.setText("SAVE RECIPE")
-          Telegram.WebApp.MainButton.onClick(on_recipe_save);
-        }
+        done = ctx.view_transition(type, from_path);
+        ctx.update_main_button(to_path);
       }
     });
 
-    transition.finished.finally(() => {
-      if (thumbnail) thumbnail.style.viewTransitionName = "";
-    })
+    transition.finished.finally(done);
   }
 
   async setup_navigation(cb) {
@@ -248,4 +224,4 @@ class App {
   }
 }
 
-let app = new App();
+let app = new App(Telegram.WebApp);
