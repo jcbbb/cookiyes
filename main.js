@@ -146,11 +146,11 @@ class App {
       } break;
       default:
         text = "NEW RECIPE";
-        main_btn_fn = () => this.navigation.navigate("/recipes/new");
+        main_btn_fn = this.on_new_recipe;
     }
 
     if (main_btn_fn) {
-      this.main_btn.offClick(this.last_main_btn_fn);
+      if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn);
       this.main_btn.onClick(main_btn_fn.bind(this));
       this.last_main_btn_fn = main_btn_fn;
     }
@@ -158,6 +158,10 @@ class App {
     this.main_btn.setParams({ text, isVisible: is_visible });
     if (show_progress) this.main_btn.showProgress();
     else this.main_btn.hideProgress();
+  }
+
+  on_new_recipe() {
+    this.navigation.navigate("/recipes/new");
   }
 
   async on_recipe_save() {
