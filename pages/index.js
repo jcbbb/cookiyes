@@ -41,7 +41,7 @@ export function handle_home_view() {
 
 function home(categories = [], recipes = []) {
   return layout(`
-    <header class="pl-6 pr-6 pt-10 pb-8">
+    <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0">
       <h1 class="tracking-tight text-3xl font-bold">What would you like to cook?</h1>
       <a href="/search" class="mt-6 block">
         <input type="search" name="query" class="form-control" placeholder="Search for food" readonly />
@@ -49,11 +49,11 @@ function home(categories = [], recipes = []) {
     </header>
     <main class="flex flex-col space-y-8">
       <section>
-        <h2 class="px-6 text-sm tracking-widest font-medium uppercase">Popular categories</h2>
+        <h2 class="px-6 text-sm tracking-widest font-medium uppercase lg:px-0">Popular categories</h2>
         <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
           ${categories.map((category) => {
             return `
-              <li class="first:ml-6 last:mr-6 shrink-0">
+              <li class="first:ml-6 last:mr-6 lg:first:ml-0 shrink-0">
                 <a href="/c/${category.id}" class="flex flex-col items-center">
                   <div style="background-color: ${category.bg_hex}" class="w-16 h-16 rounded-full p-2">
                     <img src="${category.preview_url}" />
@@ -65,14 +65,14 @@ function home(categories = [], recipes = []) {
           }).join("")}
         </ul>
       </section>
-      <section class="px-6">
+      <section class="px-6 lg:px-0">
         <h2 class="text-sm tracking-widest font-medium uppercase">Recipes</h2>
         <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
           ${recipes.map((recipe) => {
             return `
-              <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black">
+              <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
                 <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
-                <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
+                <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
                 <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
                   <span class="uppercase text-xs font-medium text-purple">5 min</span>
                   <span class="font-bold mb-2">${recipe.name}</span>

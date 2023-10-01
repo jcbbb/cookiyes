@@ -126,6 +126,18 @@ class App {
 
     this.setup_navigation(this.on_navigate.bind(this));
     this.update_main_button();
+
+    this.back_btn.onClick(this.on_back_button.bind(this));
+    this.back_btn.show();
+  }
+
+  on_back_button() {
+    if (this.navigation.canGoBack) {
+      this.navigation.back();
+    } else {
+      this.offClick(this.on_back_button.bind(this));
+      this.webapp.close();
+    }
   }
 
   update_main_button(pathname) {
@@ -142,6 +154,7 @@ class App {
         text = "NEW RECIPE";
     }
 
+    console.log({ text, is_visible });
     this.main_btn.setParams({ text, isVisible: is_visible });
   }
 

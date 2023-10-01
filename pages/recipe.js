@@ -6,9 +6,9 @@ export function render_single(recipe) {
   return layout(`
     <header>
       <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
-      <h1 class="text-2xl p-6 font-bold">${recipe.name}</>
+      <h1 class="text-2xl p-6 lg:px-0 font-bold">${recipe.name}</>
     </header>
-    <main class="flex flex-col px-6">
+    <main class="flex flex-col px-6 lg:px-0">
       <section class="recipe-instructions">
        ${recipe.instructions}
       </section>
@@ -82,12 +82,12 @@ export async function handle_new_recipe(req) {
 
 export function render_search_view() {
   return layout(`
-    <header class="pl-6 pr-6 pt-10 pb-8 main-header">
+    <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0 main-header">
       <form action="/search/results">
         <input type="search" name="query" class="form-control" id="search-input" placeholder="Search for food" autofocus />
       </form>
     </header>
-    <main class="px-6">
+    <main class="px-6 lg:px-0">
     </main>
     <script src="/search.js" defer async dynamic="true"></script>
   `);
@@ -125,21 +125,21 @@ export function handle_search_view() {
 function render_category_recipes(recipes, category) {
   return layout(
     `<header class="flex items-center justify-center">
-      <div style="background-color: ${category.bg_hex}" class="p-6 w-full flex justify-center">
+      <div style="background-color: ${category.bg_hex}" class="p-6 lg:px-0 w-full flex justify-center">
         <img src="${category.preview_url}" class="full-category" />
       </div>
     </header>
-    <main class="p-6">
+    <main class="p-6 lg:px-0">
       <h1 class="text-lg font-bold">${category.name} recipes</h1>
-      <ul class="grid grid-cols-2 mt-3 gap-3">
+      <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
         ${recipes.map((recipe) => {
           return `
-            <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black">
+            <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
               <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
-              <img src="${recipe.preview_url}" class="object-cover h-44 w-full" />
+              <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
               <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
                 <span class="uppercase text-xs font-medium text-purple">5 min</span>
-                <span class="font-bold text-black mb-2">${recipe.name}</span>
+                <span class="font-bold mb-2">${recipe.name}</span>
                 <span class="text-xs font-medium text-black/80 mt-auto">by Sarah</span>
               </div>
             </li>
