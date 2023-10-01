@@ -114,6 +114,7 @@ class App {
     this.navigation = window.navigation;
     this.navigation_promise = null;
     this.webapp = webapp;
+    this.last_main_btn_fn = null;
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
@@ -144,18 +145,27 @@ class App {
   update_main_button(pathname) {
     let text;
     let is_visible = true;
+    if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn);
     switch (true) {
       case pathname === "/recipes/new": {
         text = "SAVE RECIPE";
+        this.last_main_btn_fn = this.on_recipe_save;
       } break;
       case pathname === "/": {
         text = "NEW RECIPE";
+        this.last_main_btn_fn = () => this.navigation.navigate("/recipes/new");
       } break;
       default:
         text = "NEW RECIPE";
+        this.last_main_btn_fn = () => this.navigation.navigate("/recipes/new");
     }
 
+    this.main_btn.onClick(this.last_main_btn_action);
     this.main_btn.setParams({ text, isVisible: is_visible });
+  }
+
+  on_recipe_save() {
+    console.log("ON RECIPE SAVE");
   }
 
   view_transition(type, path) {
