@@ -1,5 +1,4 @@
 let ongoing_transition;
-// window.navigation = null;
 
 async function get_content(url) {
   let response = await fetch(url);
@@ -41,13 +40,22 @@ function should_not_intercept(e) {
 
 function transition_helper({
   skip = false,
-  class_names = [],
+  class_names = { enter: [], leave: [] },
   update_dom,
+  is_back
 }) {
+  let suffix = is_back ? "-back" : "";
+  let leave_classes = class_names.leave.map((v) => v + suffix);
+  let enter_classes = class_names.enter.map((v) => v + suffix);
   if (skip || !document.startViewTransition) {
+    document.documentElement.classList.add(...leave_classes)
+    let on_animation_end = () => {
+      document.documentElement.classList.remove(...enter_classes);
+    }
     let updateCallbackDone = Promise.resolve(update_dom()).then(() => {
-      document.documentElement.classList.remove(...class_names);
-      document.documentElement.classList.add("enter");
+      document.documentElement.classList.remove(...leave_classes);
+      document.documentElement.classList.add(...enter_classes);
+      document.documentElement.addEventListener("animationend", on_animation_end, { once: true });
       return undefined;
     });
 
@@ -59,14 +67,11 @@ function transition_helper({
     }
   }
 
-  document.documentElement.classList.add(...class_names);
-
   let transition = document.startViewTransition(update_dom);
   ongoing_transition = transition;
 
   transition.finished.finally(() => {
     ongoing_transition = undefined;
-    document.documentElement.classList.remove(...class_names);
   });
 
   return transition;
@@ -114,8 +119,8 @@ class App {
     this.back_btn = webapp.MainButton;
 
     if (!this.navigation) {
-      this.navigation_promise = import("/navigation.js").then((module) => {
-        this.navigation = new module.Navigation();
+      this.navigation_promise = import("/navigation.js").then(({ Navigation }) => {
+        this.navigation = new Navigation();
       })
     }
 
@@ -176,24 +181,37 @@ class App {
     }
   }
 
+  is_back_navigation(e) {
+    if (e.navigationType === "push" || e.navigationType === "replace") {
+      return false;
+    }
 
-  async on_navigate({ from_path, to_path }) {
+    if (e.destination.index !== -1 && e.destination.index < this.navigation.currentEntry.index) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async on_navigate({ from_path, to_path, is_back }) {
     let content = await get_content(to_path);
     let doc = parser.parseFromString(content, "text/html");
     let type = get_nav_type(from_path, to_path);
 
-    let done = this.view_transition(type, to_path);
+    let cleanups = [this.view_transition(type, to_path)];
 
     let ctx = this;
     let transition = transition_helper({
+      class_names: { enter: ["enter"], leave: ["leave"] },
+      is_back,
       update_dom() {
         document.body.innerHTML = doc.body.innerHTML;
-        done = ctx.view_transition(type, from_path);
+        cleanups.push(ctx.view_transition(type, from_path));
         ctx.update_main_button(to_path);
       }
     });
 
-    transition.finished.finally(done);
+    transition.finished.finally(() => cleanups.forEach(fn => fn()));
   }
 
   async setup_navigation(cb) {
@@ -205,13 +223,15 @@ class App {
       if (location.origin !== to.origin) return;
 
       let from_path = location.pathname;
+      if (e.from) from_path = new URL(e.from.url).pathname;
+      let is_back = this.is_back_navigation(e);
 
       if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
         e.intercept({
           scroll: "manual",
           async handler() {
             if (e.info === "ignore") return;
-            await cb({ from_path, to_path: to.pathname })
+            await cb({ from_path, to_path: to.pathname, is_back })
             await ongoing_transition?.updateCallbackDone;
 
             e.scroll();
