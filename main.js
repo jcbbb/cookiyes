@@ -77,10 +77,11 @@ function transition_helper({
   return transition;
 }
 
+let RECIPE_REGEX = /\/recipes\/\d+$/;
 function get_nav_type(from_path, to_path) {
-  if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && to_path.startsWith("/recipes")) {
+  if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && RECIPE_REGEX.test(to_path)) {
     return "to-recipe";
-  } else if (from_path.startsWith("/recipes") && (to_path === "/" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
+  } else if (RECIPE_REGEX.test(from_path) && (to_path === "/" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
     return "from-recipe";
   } else if (from_path === "/" && to_path.startsWith("/c")) {
     return "to-category";
@@ -90,6 +91,8 @@ function get_nav_type(from_path, to_path) {
     return "to-search";
   } else if (from_path === "/search" && to_path === "/") {
     return "from-search";
+  } else if (to_path === "/recipes/new") {
+    return "to-new-recipe";
   }
 }
 
@@ -200,7 +203,10 @@ class App {
         }
       }
       default:
-        return () => {}
+        document.documentElement.style.viewTransitionName = "cross-fade";
+        return () => {
+          document.documentElement.style.viewTransitionName = ""
+        }
     }
   }
 

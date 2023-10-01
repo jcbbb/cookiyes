@@ -81,7 +81,7 @@ function home(categories = [], recipes = []) {
               </li>`
           }).join("")}
         </ul>
-      </Section>
+      </section>
     </main>
   `
   )
