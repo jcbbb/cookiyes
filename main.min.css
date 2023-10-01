@@ -940,6 +940,16 @@ body {
     300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
 }
 
+.backwards::view-transition-old(cross-fade) {
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-right;
+}
+
+.backwards::view-transition-new(cross-fade) {
+  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-left;
+}
+
 ::view-transition-new(full-thumbnail),
 ::view-transition-old(full-thumbnail) {
   animation: none;
@@ -1054,65 +1064,24 @@ body {
 /* } */
 
 .leave {
-  /* animation: 300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left; */
   animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
     300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
 }
 
 .enter {
-  /* animation: 350ms cubic-bezier(0, 0, 0.2, 1) 150ms both fade-in, */
-  /*   300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right; */
   animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
     300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
 }
 
-.enter-back {
+.backwards.enter {
   animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
     300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-left;
 }
 
-.leave-back {
+.backwards.leave {
   animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
     300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-right;
 }
-
-/* .enter { */
-
-/*   animation: anim-in 300ms ease-in; */
-
-/* } */
-
-/* .leave { */
-
-/*   animation: anim-out 300ms ease-in forwards; */
-
-/* } */
-
-/* .testo { */
-
-/*   width: 100%; */
-
-/*   object-fit: cover; */
-
-/*   height: 400px; */
-
-/* } */
-
-/* @keyframes anim-in { */
-
-/*   from { transform: translateY(-200px); opacity: 0; } */
-
-/*   to { transform: translateY(0); opacity: 1; } */
-
-/* } */
-
-/* @keyframes anim-out { */
-
-/*   from { transform: translateY(0); opacity: 1; } */
-
-/*   to { transform: translateY(-200px); opacity: 0; } */
-
-/* } */
 
 .recipe-instructions h2 {
   margin-bottom: 0.75rem;

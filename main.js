@@ -42,19 +42,15 @@ function transition_helper({
   skip = false,
   class_names = { enter: [], leave: [] },
   update_dom,
-  is_back
 }) {
-  let suffix = is_back ? "-back" : "";
-  let leave_classes = class_names.leave.map((v) => v + suffix);
-  let enter_classes = class_names.enter.map((v) => v + suffix);
   if (skip || !document.startViewTransition) {
-    document.documentElement.classList.add(...leave_classes)
+    document.documentElement.classList.add(...class_names.leave)
     let on_animation_end = () => {
-      document.documentElement.classList.remove(...enter_classes);
+      document.documentElement.classList.remove(...class_names.enter);
     }
     let updateCallbackDone = Promise.resolve(update_dom()).then(() => {
-      document.documentElement.classList.remove(...leave_classes);
-      document.documentElement.classList.add(...enter_classes);
+      document.documentElement.classList.remove(...class_names.leave);
+      document.documentElement.classList.add(...class_names.enter);
       document.documentElement.addEventListener("animationend", on_animation_end, { once: true });
       return undefined;
     });
@@ -99,17 +95,6 @@ function get_nav_type(from_path, to_path) {
 let parser = new DOMParser();
 
 async function on_recipe_save() {
-  let new_recipe_form = document.getElementById("new-recipe-form");
-  let body = new FormData(new_recipe_form);
-  Telegram.WebApp.MainButton.showProgress();
-  Telegram.WebApp.MainButton.setText("SAVING");
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
-  if (response.redirected) navigation.navigate(response.url);
-  Telegram.WebApp.MainButton.hideProgress();
-  Telegram.WebApp.MainButton.setText("NEW RECIPE");
-  Telegram.WebApp.MainButton.offClick(on_recipe_save);
-  Telegram.WebApp.MainButton.onClick(navigate_to_new);
 }
 
 class App {
@@ -145,30 +130,52 @@ class App {
     }
   }
 
-  update_main_button(pathname) {
+  update_main_button(whatever) {
     let text;
     let is_visible = true;
-    if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn);
+    let show_progress = false;
+    let main_btn_fn = null;
     switch (true) {
-      case pathname === "/recipes/new": {
+      case whatever === "/recipes/new": {
         text = "SAVE RECIPE";
-        this.last_main_btn_fn = this.on_recipe_save;
+        main_btn_fn = this.on_recipe_save;
       } break;
-      case pathname === "/": {
+      case whatever === "/": {
         text = "NEW RECIPE";
-        this.last_main_btn_fn = () => this.navigation.navigate("/recipes/new");
+        main_btn_fn = () => this.navigation.navigate("/recipes/new");
+      } break;
+      case whatever === "recipe-save-intent": {
+        text = "SAVING";
+        show_progress = true;
+      } break;
+      case whatever === "recipe-saved": {
+        text = "NEW RECIPE";
+        show_progress = false;
+        main_btn_fn = () => this.navigation.navigate("/recipes/new");
       } break;
       default:
         text = "NEW RECIPE";
-        this.last_main_btn_fn = () => this.navigation.navigate("/recipes/new");
+        main_btn_fn = () => this.navigation.navigate("/recipes/new");
     }
 
-    this.main_btn.onClick(this.last_main_btn_fn);
+    if (main_btn_fn) {
+      this.main_btn.offClick(this.last_main_btn_fn);
+      this.main_btn.onClick(main_btn_fn);
+      this.last_main_btn_fn = main_btn_fn;
+    }
+
     this.main_btn.setParams({ text, isVisible: is_visible });
+    if (show_progress) this.main_btn.showProgress();
+    else this.main_btn.hideProgress();
   }
 
-  on_recipe_save() {
-    console.log("ON RECIPE SAVE");
+  async on_recipe_save() {
+    let new_recipe_form = document.getElementById("new-recipe-form");
+    let body = new FormData(new_recipe_form);
+    this.update_main_button("recipe-save-intent");
+    let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
+    if (response.redirected) navigation.navigate(response.url);
+    this.update_main_button("recipe-saved");
   }
 
   view_transition(type, path) {
@@ -229,6 +236,8 @@ class App {
 
     let cleanups = [this.view_transition(type, to_path)];
 
+    if (is_back) document.documentElement.classList.add("backwards");
+
     let ctx = this;
     let transition = transition_helper({
       class_names: { enter: ["enter"], leave: ["leave"] },
@@ -240,7 +249,10 @@ class App {
       }
     });
 
-    transition.finished.finally(() => cleanups.forEach(fn => fn()));
+    transition.finished.finally(() => {
+      cleanups.forEach(fn => fn());
+      if (is_back) document.documentElement.classList.remove("backwards");
+    });
   }
 
   async setup_navigation(cb) {
