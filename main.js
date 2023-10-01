@@ -155,7 +155,7 @@ class App {
         console.log("Removing event: ", this.last_main_btn_fn);
         this.main_btn.offClick(this.last_main_btn_fn)
       }
-      this.last_main_btn_fn = main_btn_fn;
+      this.last_main_btn_fn = main_btn_fn.bind(this);
       console.log("Adding event: ", this.last_main_btn_fn);
       this.main_btn.onClick(this.last_main_btn_fn);
     }
