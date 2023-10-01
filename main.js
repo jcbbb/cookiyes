@@ -160,7 +160,7 @@ class App {
 
     if (main_btn_fn) {
       this.main_btn.offClick(this.last_main_btn_fn);
-      this.main_btn.onClick(main_btn_fn);
+      this.main_btn.onClick(main_btn_fn.bind(this));
       this.last_main_btn_fn = main_btn_fn;
     }
 
