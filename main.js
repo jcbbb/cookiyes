@@ -151,14 +151,19 @@ class App {
 
     if (main_btn_fn) {
       if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn);
-      this.main_btn.onClick(main_btn_fn.bind(this));
       this.last_main_btn_fn = main_btn_fn;
+      this.main_btn.onClick(this.last_main_btn_fn);
     }
 
     this.main_btn.setParams({ text, isVisible: is_visible });
     if (show_progress) this.main_btn.showProgress();
     else this.main_btn.hideProgress();
   }
+
+  // On load, on_new_recipe defined;
+  // Go to /recipes/new, change main_btn_fn to on_recipe_save
+  // When on_recipe_save pressed, recipe_save_intent changes button_text but not action
+  // Success and redirect should match default case when navigated to redirected url;
 
   on_new_recipe() {
     this.navigation.navigate("/recipes/new");
@@ -169,7 +174,6 @@ class App {
     let body = new FormData(new_recipe_form);
     this.update_main_button("recipe-save-intent");
     let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
-    this.update_main_button();
     if (response.redirected) navigation.navigate(response.url);
   }
 
