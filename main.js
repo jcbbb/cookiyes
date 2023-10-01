@@ -116,7 +116,7 @@ class App {
     this.webapp = webapp;
 
     this.main_btn = webapp.MainButton;
-    this.back_btn = webapp.MainButton;
+    this.back_btn = webapp.BackButton;
 
     if (!this.navigation) {
       this.navigation_promise = import("/navigation.js").then(({ Navigation }) => {
@@ -129,6 +129,7 @@ class App {
 
     this.back_btn.onClick(this.on_back_button.bind(this));
     this.back_btn.show();
+    this.main_btn.show();
   }
 
   on_back_button() {
@@ -154,7 +155,6 @@ class App {
         text = "NEW RECIPE";
     }
 
-    console.log({ text, is_visible });
     this.main_btn.setParams({ text, isVisible: is_visible });
   }
 
