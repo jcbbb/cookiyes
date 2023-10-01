@@ -149,7 +149,7 @@ class App {
         main_btn_fn = this.on_new_recipe;
     }
 
-    if (main_btn_fn) {
+    if (main_btn_fn && main_btn_fn != this.last_main_btn_fn) {
       if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn);
       this.last_main_btn_fn = main_btn_fn;
       this.main_btn.onClick(this.last_main_btn_fn);
