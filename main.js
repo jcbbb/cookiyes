@@ -140,18 +140,9 @@ class App {
         text = "SAVE RECIPE";
         main_btn_fn = this.on_recipe_save;
       } break;
-      case whatever === "/": {
-        text = "NEW RECIPE";
-        main_btn_fn = () => this.navigation.navigate("/recipes/new");
-      } break;
       case whatever === "recipe-save-intent": {
         text = "SAVING";
         show_progress = true;
-      } break;
-      case whatever === "recipe-saved": {
-        text = "NEW RECIPE";
-        show_progress = false;
-        main_btn_fn = () => this.navigation.navigate("/recipes/new");
       } break;
       default:
         text = "NEW RECIPE";
@@ -175,7 +166,6 @@ class App {
     this.update_main_button("recipe-save-intent");
     let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
     if (response.redirected) navigation.navigate(response.url);
-    this.update_main_button("recipe-saved");
   }
 
   view_transition(type, path) {
