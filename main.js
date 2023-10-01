@@ -1,5 +1,7 @@
 let ongoing_transition;
 
+// TODO: fix loading scripts on new page;
+// TODO: fix backwards animation from recipe to new recipe form;
 async function get_content(url) {
   let response = await fetch(url);
   return await response.text();
@@ -94,9 +96,6 @@ function get_nav_type(from_path, to_path) {
 
 let parser = new DOMParser();
 
-async function on_recipe_save() {
-}
-
 class App {
   constructor(webapp) {
     this.navigation = window.navigation;
@@ -150,13 +149,8 @@ class App {
     }
 
     if (main_btn_fn) {
-      console.log({ last_main: this.last_main_btn_fn, new_main: main_btn_fn });
-      if (this.last_main_btn_fn) {
-        console.log("Removing event: ", this.last_main_btn_fn);
-        this.main_btn.offClick(this.last_main_btn_fn)
-      }
+      if (this.last_main_btn_fn) this.main_btn.offClick(this.last_main_btn_fn)
       this.last_main_btn_fn = main_btn_fn.bind(this);
-      console.log("Adding event: ", this.last_main_btn_fn);
       this.main_btn.onClick(this.last_main_btn_fn);
     }
 
@@ -164,11 +158,6 @@ class App {
     if (show_progress) this.main_btn.showProgress();
     else this.main_btn.hideProgress();
   }
-
-  // On load, on_new_recipe defined;
-  // Go to /recipes/new, change main_btn_fn to on_recipe_save
-  // When on_recipe_save pressed, recipe_save_intent changes button_text but not action
-  // Success and redirect should match default case when navigated to redirected url;
 
   on_new_recipe() {
     this.navigation.navigate("/recipes/new");
