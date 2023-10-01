@@ -160,7 +160,7 @@ class App {
         this.last_main_btn_fn = () => this.navigation.navigate("/recipes/new");
     }
 
-    this.main_btn.onClick(this.last_main_btn_action);
+    this.main_btn.onClick(this.last_main_btn_fn);
     this.main_btn.setParams({ text, isVisible: is_visible });
   }
 
