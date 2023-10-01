@@ -169,6 +169,7 @@ class App {
     let body = new FormData(new_recipe_form);
     this.update_main_button("recipe-save-intent");
     let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
+    this.update_main_button();
     if (response.redirected) navigation.navigate(response.url);
   }
 
