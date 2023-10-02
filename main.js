@@ -234,6 +234,7 @@ class App {
     let enable_form = disable_form(new_recipe_form);
     let response = await this.request(new_recipe_form.action, { method: new_recipe_form.method, body });
     let result = await response.json().catch(() => {});
+    enable_form(result);
     if (!response.ok) {
       this.update_main_button("recipe-save-failed");
       this.haptic_feedback.notificationOccurred("error");
@@ -241,7 +242,6 @@ class App {
       this.haptic_feedback.notificationOccurred("success");
       this.navigation.navigate(response.url);
     }
-    enable_form(result);
   }
 
   view_transition(type, path) {

@@ -81,7 +81,7 @@ export async function handle_new_recipe(req) {
   let validate = create_validator(NEW_RECIPE_RULES);
   let validation_result = validate(data);
   if (Object.keys(validation_result).length) {
-    return new Response(JSON.stringify(validation_result), { headers: { "Content-Type": "application/json", status: 422 } });
+    return new Response(JSON.stringify(validation_result), { headers: { "Content-Type": "application/json" }, status: 422 });
   }
 
   let instructions = marked.parse([data.ingredients_prefix + data.ingredients, data.instructions_prefix + data.instructions].join("\n"));
