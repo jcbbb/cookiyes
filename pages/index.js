@@ -76,7 +76,7 @@ function home(categories = [], recipes = []) {
                 <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
                   <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
                   <span class="font-bold mb-2">${recipe.name}</span>
-                  <span class="text-xs font-medium mt-auto text-black/80">by ${recipe.user_id ? recipe.user_info.first_name : "Anonymous"}</span>
+                  <span class="text-xs font-medium mt-auto text-black/80">by ${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
                 </div>
               </li>`
           }).join("")}
