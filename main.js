@@ -153,6 +153,7 @@ class App {
     this.last_main_btn_fn = null;
     this.init_data = webapp.initDataUnsafe;
     this.user = this.init_data.user;
+    this.haptic_feedback = webapp.HapticFeedback;
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
@@ -193,6 +194,10 @@ class App {
         text = "SAVING";
         show_progress = true;
       } break;
+      case whatever === "recipe-save-failed": {
+        text = "SAVE RECIPE"
+        show_progress = false;
+      } break;
       default:
         text = "NEW RECIPE";
         main_btn_fn = this.on_new_recipe;
@@ -229,8 +234,14 @@ class App {
     let enable_form = disable_form(new_recipe_form);
     let response = await this.request(new_recipe_form.action, { method: new_recipe_form.method, body });
     let result = await response.json().catch(() => {});
+    if (!response.ok) {
+      this.update_main_button("recipe-save-failed");
+      this.haptic_feedback.notificationOccurred("error");
+    } else if (response.redirected) {
+      this.haptic_feedback.notificationOccurred("success");
+      this.navigation.navigate(response.url);
+    }
     enable_form(result);
-    if (response.redirected) this.navigation.navigate(response.url);
   }
 
   view_transition(type, path) {
