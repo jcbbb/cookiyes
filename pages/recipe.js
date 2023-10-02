@@ -4,68 +4,81 @@ import { marked } from "marked";
 import { create_validator, NEW_RECIPE_RULES } from "../validation.js";
 
 export function render_single(recipe) {
-  return layout(`
-    <header>
-      <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
-      <div class="p-6 lg:px-0">
-        <h1 class="text-2xl font-bold">${recipe.name}</h1>
-        <p class="text-sm text-black/80 mt-auto">by <span class="author">${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span></p>
-      </div>
-    </header>
-    <main class="flex flex-col px-6 lg:px-0">
-      <section class="recipe-instructions">
-       ${recipe.instructions}
-      </section>
-    </main>
-  `);
+  return layout({
+    meta: {
+      title: recipe.name,
+      description: `Great ${recipe.prep_time} min ${recipe.name} recipe by ${recipe.user_fullname || "Anonymous"}`,
+      preview_url: recipe.preview_url,
+      url: `https://cookiyes.homeless.dev/recipes/${recipe.id}`
+    },
+    content: `
+      <header>
+        <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
+        <div class="p-6 lg:px-0">
+          <h1 class="text-2xl font-bold">${recipe.name}</h1>
+          <p class="text-sm text-black/80 mt-auto">by <span class="author">${recipe.user_fullname || "Anonymous"}</span></p>
+        </div>
+      </header>
+      <main class="flex flex-col px-6 lg:px-0">
+        <section class="recipe-instructions">
+        ${recipe.instructions}
+        </section>
+      </main>`
+  })
 }
 
 export function render_new(categories) {
-  return layout(`
-    <header class="pt-10 px-6 lg:px-0">
-      <h1 class="text-2xl font-bold">New recipe</h1>
-    </header>
-    <main class="p-6 lg:px-0">
-      <form action="/recipes" method="post" id="new-recipe-form" class="flex flex-col space-y-3" enctype="multipart/form-data">
-        <label>
-          <span class="text-sm font-medium uppercase">Title</span>
-          <input type="text" class="form-control mt-2" name="name" autocomplete="off" spellcheck="off" required />
-          <small></small>
-        </label>
-        <label>
-          <span class="text-sm font-medium uppercase">Prep time (in minutes)</span>
-          <input type="text" class="form-control mt-2" name="prep_time" autocomplete="off" spellcheck="off" required placeholder="5" />
-          <small></small>
-        </label>
-        <label>
-          <input type="hidden" name="ingredients_prefix" value="## Ingredients\n"
-          <span class="text-sm font-medium uppercase">Ingredients</span>
-          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="ingredients" placeholder="- One bread\n- 300ml milk" required></textarea>
-          <small></small>
-        </label>
-        <label>
-          <input type="hidden" name="instructions_prefix" value="## Instructions\n" />
-          <span class="text-sm font-medium uppercase">Instructions</span>
-          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="1. Slice the bread\n2. Put in the milk" required></textarea>
-          <small></small>
-        </label>
-        <label>
-          <span class="text-sm font-medium uppercase">Preview url</span>
-          <input type="url" class="form-control mt-2" name="preview_url" spellcheck="off" required />
-          <small></small>
-        </label>
-        <label>
-          <span class="text-sm font-medium uppercase">Category</span>
-          <select class="form-control mt-2 appearance-none" name="category_id">
-            ${categories.map((category) => {
-              return `<option value="${category.id}">${category.name}</option>`
-            }).join("")}
-          </select>
-          <small></small>
-        </label>
-      </form>
-    </main>
-  `);
+  return layout({
+    meta: {
+      title: "New recipe",
+      description: "Easily create new recipe and we will share it with everyone!",
+      url: "https://cookiyes.homeless.dev/recipes/new"
+    },
+    content: `
+      <header class="pt-10 px-6 lg:px-0">
+        <h1 class="text-2xl font-bold">New recipe</h1>
+      </header>
+      <main class="p-6 lg:px-0">
+        <form action="/recipes" method="post" id="new-recipe-form" class="flex flex-col space-y-3" enctype="multipart/form-data">
+          <label>
+            <span class="text-sm font-medium uppercase">Title</span>
+            <input type="text" class="form-control mt-2" name="name" autocomplete="off" spellcheck="off" required />
+            <small></small>
+          </label>
+          <label>
+            <span class="text-sm font-medium uppercase">Prep time (in minutes)</span>
+            <input type="text" class="form-control mt-2" name="prep_time" autocomplete="off" spellcheck="off" required placeholder="5" />
+            <small></small>
+          </label>
+          <label>
+            <input type="hidden" name="ingredients_prefix" value="## Ingredients\n"
+            <span class="text-sm font-medium uppercase">Ingredients</span>
+            <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="ingredients" placeholder="- One bread\n- 300ml milk" required></textarea>
+            <small></small>
+          </label>
+          <label>
+            <input type="hidden" name="instructions_prefix" value="## Instructions\n" />
+            <span class="text-sm font-medium uppercase">Instructions</span>
+            <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="1. Slice the bread\n2. Put in the milk" required></textarea>
+            <small></small>
+          </label>
+          <label>
+            <span class="text-sm font-medium uppercase">Preview url</span>
+            <input type="url" class="form-control mt-2" name="preview_url" spellcheck="off" required />
+            <small></small>
+          </label>
+          <label>
+            <span class="text-sm font-medium uppercase">Category</span>
+            <select class="form-control mt-2 appearance-none" name="category_id">
+              ${categories.map((category) => {
+                return `<option value="${category.id}">${category.name}</option>`
+              }).join("")}
+            </select>
+            <small></small>
+          </label>
+        </form>
+      </main>`
+  })
 }
 
 export function handle_single_recipe_view(req) {
@@ -98,16 +111,22 @@ export async function handle_new_recipe(req) {
 }
 
 export function render_search_view() {
-  return layout(`
-    <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0 main-header">
-      <form action="/search/results">
-        <input type="search" name="query" class="form-control" id="search-input" placeholder="Search for food" autofocus />
-      </form>
-    </header>
-    <main class="px-6 lg:px-0">
-    </main>
-    <script src="/search.js" defer async dynamic="true"></script>
-  `);
+  return layout({
+    meta: {
+      title: "Search",
+      description: "Search for recipes",
+      url: "https://cookiyes.homeless.dev/search"
+    },
+    content: `
+      <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0 main-header">
+        <form action="/search/results">
+          <input type="search" name="query" class="form-control" id="search-input" placeholder="Search for food" autofocus />
+        </form>
+      </header>
+      <main class="px-6 lg:px-0">
+      </main>
+      <script src="/search.js" defer async dynamic="true"></script>`
+  })
 }
 
 export function render_search_results(recipes) {
@@ -140,32 +159,38 @@ export function handle_search_view() {
 }
 
 function render_category_recipes(recipes, category) {
-  return layout(
-    `<header class="flex items-center justify-center">
-      <div style="background-color: ${category.bg_hex}" class="p-6 lg:px-0 w-full flex justify-center">
-        <img src="${category.preview_url}" class="full-category" />
-      </div>
-    </header>
-    <main class="p-6 lg:px-0">
-      <h1 class="text-lg font-bold">${category.name} recipes</h1>
-      <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
-        ${recipes.map((recipe) => {
-          return `
-            <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
-              <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
-              <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
-              <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
-                <span class="font-bold mb-2">${recipe.name}</span>
-                <span class="text-xs font-medium text-black/80 mt-auto">by {recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
-              </div>
-            </li>
-          `
-        }).join("")}
-      </ul>
-    </main>
+  return layout({
+    meta: {
+      title: `${category.name} recipes`,
+      description: `${category.name} recipes`,
+      url: `https://cookiyes.homeless.dev/c/${category.id}`
+    },
+    content: `
+      <header class="flex items-center justify-center">
+        <div style="background-color: ${category.bg_hex}" class="p-6 lg:px-0 w-full flex justify-center">
+          <img src="${category.preview_url}" class="full-category" />
+        </div>
+      </header>
+      <main class="p-6 lg:px-0">
+        <h1 class="text-lg font-bold">${category.name} recipes</h1>
+        <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
+          ${recipes.map((recipe) => {
+            return `
+              <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
+                <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
+                <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
+                <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
+                  <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
+                  <span class="font-bold mb-2">${recipe.name}</span>
+                  <span class="text-xs font-medium text-black/80 mt-auto">by {recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
+                </div>
+              </li>
+            `
+          }).join("")}
+        </ul>
+      </main>
     `
-  )
+  })
 }
 
 export function handle_category_view(req) {
