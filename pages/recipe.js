@@ -7,7 +7,10 @@ export function render_single(recipe) {
   return layout(`
     <header>
       <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
-      <h1 class="text-2xl p-6 lg:px-0 font-bold">${recipe.name}</>
+      <div class="p-6 lg:px-0">
+        <h1 class="text-2xl font-bold">${recipe.name}</h1>
+        <span class="text-sm text-black/80 mt-auto">by ${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
+      </div>
     </header>
     <main class="flex flex-col px-6 lg:px-0">
       <section class="recipe-instructions">
@@ -115,9 +118,9 @@ export function render_search_results(recipes) {
           <a href="/recipes/${recipe.id}" class="flex p-2 gap-2 duration-300 rounded-2xl">
             <img class="w-14 h-14 object-cover rounded-2xl" src="${recipe.preview_url}" />
             <div class="flex flex-col">
-              <span class="uppercase text-xs font-medium text-purple">5 min</span>
+              <span class="uppercase text-xs font-medium text-purple">{recipe.prep_time} min</span>
               <span class="font-bold text-black">${recipe.name}</span>
-              <span class="text-xs font-medium text-black/80 mt-auto">by Sarah</span>
+              <span class="text-xs font-medium text-black/80 mt-auto">by {recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
             </div>
           </a>
         </li>`
@@ -152,9 +155,9 @@ function render_category_recipes(recipes, category) {
               <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
               <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
               <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                <span class="uppercase text-xs font-medium text-purple">5 min</span>
+                <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
                 <span class="font-bold mb-2">${recipe.name}</span>
-                <span class="text-xs font-medium text-black/80 mt-auto">by Sarah</span>
+                <span class="text-xs font-medium text-black/80 mt-auto">by {recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
               </div>
             </li>
           `
