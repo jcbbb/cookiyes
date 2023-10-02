@@ -24,15 +24,11 @@ bot.on("inline_query", (ctx) => {
       type: "article",
       id: recipe.id,
       title: recipe.name,
-      description: "Prep time: 5 minutes. Created by Sarah",
+      description: `Prep time: ${recipe.prep_time} min\nCreated by ${recipe.user_fullname || "Anonymous"}`,
       thumbnail_url: recipe.preview_url,
       input_message_content: {
-        message_text: `**${recipe.name}**`,
-        parse_mode: "MarkdownV2",
+        message_text: `https://cookiyes.homeless.dev/recipes/${recipe.id}`
       },
-      reply_markup: Markup.inlineKeyboard([
-        { text: "View", web_app: { url: "https://cookies.homeless.dev" } }
-      ])
     })
   }
 

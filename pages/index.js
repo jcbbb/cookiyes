@@ -1,4 +1,5 @@
 import { db } from "../db.js";
+import { render_recipe_cards } from "./recipe.js";
 
 export function layout(props = { meta = {  }, content = "" } = {}) {
   return `
@@ -90,20 +91,7 @@ function home(categories = [], recipes = []) {
         </section>
         <section class="px-6 lg:px-0">
           <h2 class="text-sm tracking-widest font-medium uppercase">Recipes</h2>
-          <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
-            ${recipes.map((recipe) => {
-              return `
-                <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
-                  <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
-                  <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
-                  <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                    <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
-                    <span class="font-bold mb-2">${recipe.name}</span>
-                    <span class="text-xs font-medium mt-auto text-black/80">by ${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
-                  </div>
-                </li>`
-            }).join("")}
-          </ul>
+          ${render_recipe_cards(recipes)}
         </section>
       </main>`
   });
