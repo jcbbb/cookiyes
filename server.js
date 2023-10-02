@@ -1,7 +1,7 @@
 import { handle_home_view } from "./pages/index.js";
 import { migrate, seed, db } from "./db.js";
 import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view, handle_search_results } from "./pages/recipe.js";
-import { Telegraf, Markup } from "telegraf";
+import { bot } from "./bot.js";
 
 let port = parseInt(process.env.PORT, 10) || 6996;
 
@@ -12,30 +12,9 @@ if (subcommand) {
   process.exit(0);
 }
 
-let bot = new Telegraf(process.env.TG_BOT_TOKEN);
-
-bot.on("inline_query", (ctx) => {
-  let query = ctx.update.inline_query.query;
-  let recipe_query = db.query("select * from recipes where name like ?1 limit 10");
-  let recipes = recipe_query.all(`%${query}%`);
-  let results = [];
-  for (let recipe of recipes) {
-    results.push({
-      type: "article",
-      id: recipe.id,
-      title: recipe.name,
-      description: `Prep time: ${recipe.prep_time} min\nCreated by ${recipe.user_fullname || "Anonymous"}`,
-      thumbnail_url: recipe.preview_url,
-      input_message_content: {
-        message_text: `https://cookiyes.homeless.dev/recipes/${recipe.id}`
-      },
-    })
-  }
-
-  ctx.answerInlineQuery(results);
-});
-
 bot.launch();
+
+// TODO: fix search results;
 
 let handlers = {
   "GET": {

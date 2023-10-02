@@ -1,4 +1,5 @@
 let ongoing_transition;
+let parser = new DOMParser();
 
 // TODO: fix loading scripts on new page;
 // TODO: fix backwards animation from recipe to new recipe form;
@@ -30,6 +31,15 @@ async function get_content(url) {
 //     }
 //   }
 // }
+
+async function option(promise) {
+  try {
+    let result = await promise;
+    return [result, null];
+  } catch (err) {
+    return [null, err];
+  }
+}
 
 function should_not_intercept(e) {
   return (
@@ -72,7 +82,7 @@ function disable_form(form) {
   }
 }
 
-function transition_helper({
+function perform_transition({
   skip = false,
   class_names = { enter: [], leave: [] },
   update_dom,
@@ -107,7 +117,8 @@ function transition_helper({
   return transition;
 }
 
-let RECIPE_REGEX = /\/recipes\/\d+$/;
+const RECIPE_REGEX = /\/recipes\/\d+$/;
+
 function get_nav_type(from_path, to_path) {
   if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && RECIPE_REGEX.test(to_path)) {
     return "to-recipe";
@@ -126,29 +137,9 @@ function get_nav_type(from_path, to_path) {
   }
 }
 
-let parser = new DOMParser();
-
-let initData = {
-  auth_date: "13923329",
-  chat_instance: "3223",
-  chat_type: "2323",
-  hash: "bgbg",
-  user: {
-    allow_write_to_pm: true,
-    first_name: "jc",
-    last_name: "2333",
-    username: "jcbbb",
-    language_code: "ru",
-    id: "1212121",
-  }
-}
-
 class App {
   constructor(webapp) {
-    console.log(webapp);
-    console.log(webapp.initDataUnsafe);
     this.navigation = window.navigation;
-    this.navigation_promise = null;
     this.webapp = webapp;
     this.last_main_btn_fn = null;
     this.init_data = webapp.initDataUnsafe;
@@ -158,17 +149,7 @@ class App {
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
 
-    if (!this.navigation) {
-      this.navigation_promise = import("/navigation.js").then(({ Navigation }) => {
-        this.navigation = new Navigation();
-      })
-    }
-
-    this.setup_navigation(this.on_navigate.bind(this));
-    this.update_main_button();
-
-    this.back_btn.onClick(this.on_back_button.bind(this));
-    this.main_btn.show();
+    this.setup();
   }
 
   on_back_button() {
@@ -308,7 +289,7 @@ class App {
     if (is_back) document.documentElement.classList.add("backwards");
 
     let ctx = this;
-    let transition = transition_helper({
+    let transition = perform_transition({
       class_names: { enter: ["enter"], leave: ["leave"] },
       is_back,
       update_dom() {
@@ -324,9 +305,24 @@ class App {
     });
   }
 
-  async setup_navigation(cb) {
-    await this.navigation_promise;
+  async setup() {
+    if (!this.navigation) {
+      let [module, err] = await option(import("/navigation.js"));
+      if (err) {
+        throw new Error("Failed to load navigation.js");
+      }
+      this.navigation = new module.Navigation();
+    }
 
+    this.setup_navigation(this.on_navigate.bind(this));
+    this.webapp.ready();
+    this.update_main_button();
+
+    this.back_btn.onClick(this.on_back_button.bind(this));
+    this.main_btn.show();
+  }
+
+  async setup_navigation(cb) {
     this.navigation.addEventListener("navigate", (e) => {
       if (should_not_intercept(e)) return;
       let to = new URL(e.destination.url);

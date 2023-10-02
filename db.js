@@ -48,8 +48,6 @@ let categories = [
   { $name: "Pizza", $bg_hex: "#b8bb26", $fg_hex: "#282828", $preview_url: "https://img.icons8.com/?size=256&id=120099&format=png" }
 ]
 
-// let units = [{ $name: "Grams", $short_name: "gr" }, { $name: "Kilograms", $short_name: "kg" }, { $name: "Liters", $short_name: "l" }, { $name: "Pieces", $short_name: "pieces" }];
-
 let recipes = [
   {
     $name: "Chicken Sandwich",
@@ -140,6 +138,5 @@ export function seed() {
   })
 
   for (let category of categories) insert_category.run(category);
-  // for (let unit of units) insert_unit.run(unit);
   insert_recipe_trx(recipes);
 }
