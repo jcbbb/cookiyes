@@ -240,6 +240,9 @@ class App {
   }
 
   async on_navigate({ from_path, to_path, is_back }) {
+    if (this.navigation.canGoBack) this.back_btn.show();
+    else this.back_btn.hide();
+
     let content = await get_content(to_path);
     let doc = parser.parseFromString(content, "text/html");
     let type = get_nav_type(from_path, to_path);
@@ -276,9 +279,6 @@ class App {
       let from_path = location.pathname;
       if (e.from) from_path = new URL(e.from.url).pathname;
       let is_back = this.is_back_navigation(e);
-
-      if (this.navigation.canGoBack) this.back_btn.show();
-      else this.back_btn.hide();
 
       if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
         e.intercept({

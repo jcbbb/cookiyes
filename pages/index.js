@@ -48,7 +48,6 @@ function home(categories = [], recipes = []) {
       </a>
     </header>
     <main class="flex flex-col space-y-8">
-      <a href="/recipes/new">New</a>
       <section>
         <h2 class="px-6 text-sm tracking-widest font-medium uppercase lg:px-0">Popular categories</h2>
         <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
