@@ -1,4 +1,5 @@
 import { Telegraf } from "telegraf";
+import { db } from "./db.js";
 
 export let bot = new Telegraf(process.env.TG_BOT_TOKEN);
 
