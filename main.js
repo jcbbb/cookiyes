@@ -96,6 +96,21 @@ function get_nav_type(from_path, to_path) {
 
 let parser = new DOMParser();
 
+let initData = {
+  auth_date: "13923329",
+  chat_instance: "3223",
+  chat_type: "2323",
+  hash: "bgbg",
+  user: {
+    allow_write_to_pm: true,
+    first_name: "jc",
+    last_name: "2333",
+    username: "jcbbb",
+    language_code: "ru",
+    id: "1212121",
+  }
+}
+
 class App {
   constructor(webapp) {
     console.log(webapp);
@@ -104,6 +119,7 @@ class App {
     this.navigation_promise = null;
     this.webapp = webapp;
     this.last_main_btn_fn = null;
+    this.initData = webapp.initDataUnsafe;
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;

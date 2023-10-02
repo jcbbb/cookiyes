@@ -1,6 +1,7 @@
 import { handle_home_view } from "./pages/index.js";
-import { migrate, seed } from "./db.js";
+import { migrate, seed, db } from "./db.js";
 import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view, handle_search_results } from "./pages/recipe.js";
+import { Telegraf } from "telegraf";
 
 let port = parseInt(process.env.PORT, 10) || 6996;
 
@@ -10,6 +11,30 @@ if (subcommand) {
   else if (subcommand === "seed") seed();
   process.exit(0);
 }
+
+let bot = new Telegraf("6427442647:AAGOMZlUQWp61ozE9astcYwa1pTxyE1Rwt8");
+bot.on("inline_query", (ctx) => {
+  let query = ctx.update.inline_query.query;
+  let recipe_query = db.query("select * from recipes where name like ?1");
+  let recipes = recipe_query.all(`%${query}%`);
+  let results = [];
+  for (let recipe of recipes) {
+    results.push({
+      type: "article",
+      id: recipe.id,
+      title: recipe.name,
+      description: "Prep time: 5 minutes. Created by Sarah",
+      thumbnail_url: recipe.preview_url,
+      input_message_content: {
+        message_text: recipe.name,
+      }
+    })
+  }
+
+  ctx.answerInlineQuery(results);
+});
+
+bot.launch();
 
 let handlers = {
   "GET": {
