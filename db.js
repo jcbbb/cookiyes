@@ -6,13 +6,6 @@ db.exec("PRAGMA journal_mode = WAL;");
 
 export function migrate() {
   db.run(`
-    create table if not exists users (
-      id integer primary key autoincrement,
-      name varchar(255) not null
-    );
-  `);
-
-  db.run(`
     create table if not exists categories (
       id integer primary key autoincrement,
       preview_url varchar(255) not null,
@@ -27,10 +20,10 @@ export function migrate() {
       id integer primary key autoincrement,
       name varchar(255),
       preview_url varchar(255) not null,
-      created_by integer,
       instructions text default '',
-
-      foreign key(created_by) references users(id)
+      prep_time integer not null,
+      user_id integer,
+      user_fullname varchar(255)
     );
   `)
 
@@ -126,17 +119,17 @@ let recipes = [
 
 export function seed() {
   let insert_category = db.prepare("insert into categories (preview_url, name, bg_hex, fg_hex) values ($preview_url, $name, $bg_hex, $fg_hex) on conflict (name) do nothing");
-  let insert_recipe = db.prepare("insert into recipes (name, created_by, preview_url, instructions) values ($name, $created_by, $preview_url, $instructions) returning id");
+  let insert_recipe = db.prepare("insert into recipes (name, preview_url, instructions, prep_time) values ($name, $preview_url, $instructions, $prep_time) returning id");
   let insert_recipe_category = db.prepare("insert into recipe_categories (recipe_id, category_id) values ($recipe_id, $category_id)");
   let category_query = db.prepare("select id from categories where name = $name");
 
   let insert_recipe_trx = db.transaction(recipes => {
     for (let recipe of recipes) {
-      let { $name, $preview_url, ingredients, instructions, categories, $created_by } = recipe;
+      let { $name, $preview_url, ingredients, instructions, categories } = recipe;
       let { id } = insert_recipe.get({
         $name,
-        $created_by,
         $preview_url,
+        $prep_time: ingredients.length,
         $instructions: marked.parse(`## Ingredients\n${ingredients.map((i) => "- " + i).join("\n")}\n## Instructions\n${instructions.map((v, i) => `${i + 1}. ${v}`).join("\n")}`),
       });
       for (let $name of categories) {

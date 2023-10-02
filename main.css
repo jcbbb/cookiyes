@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 html {
-  color-scheme: light; /* Base colors */
+  color-scheme: light;
+
+  /* Base colors */
   --caramel: 235, 219, 178;
   --caramel-400: 243, 234, 210;
   --caramel-700: 212, 177, 89;
@@ -67,6 +69,8 @@ body {
   --radius: 12px;
   --size-x: 1rem;
   --size-y: 0.75rem;
+  --outline-color: 0, 0, 0, 0;
+  --opacity: 1;
   background-color: rgb(var(--bg));
   border: none;
   padding: var(--size-y) var(--size-x);
@@ -74,12 +78,29 @@ body {
   border-radius: var(--radius);
   font-size: var(--font-size);
   color: rgb(var(--color));
-  outline: 2px solid transparent;
+  outline: 2px solid rgba(var(--outline-color));
   transition: outline-color 150ms;
+  opacity: var(--opacity);
+}
+
+.form-control-invalid .form-control {
+  --outline-color: var(--red);
+}
+
+.form-control-invalid {
+  color: rgb(var(--red));
+}
+
+.form-control-invalid > .form-control:focus {
+  --outline-color: var(--red);
 }
 
 .form-control:focus {
-  outline-color: rgb(var(--caramel-700));
+  --outline-color: var(--caramel-700);
+}
+
+.form-control:disabled {
+  --opacity: 0.7;
 }
 
 .form-control::placeholder {

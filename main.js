@@ -40,6 +40,38 @@ function should_not_intercept(e) {
   )
 }
 
+function disable_element(element) {
+  element.setAttribute("disabled", true);
+  return function enable_element() {
+    element.removeAttribute("disabled");
+  }
+}
+
+function disable_form(form) {
+  let elements = Array.from(form.elements);
+  let fns = elements.map(disable_element);
+  return function enable_form(error_object) {
+    fns.forEach(fn => fn());
+    if (!error_object) return;
+    let index = 0;
+    for (let element of elements) {
+      if (element.nodeName === "BUTTON") continue;
+      let error = error_object[element.name];
+      let label = element.closest("label");
+      let message_field = label.querySelector("small");
+      if (error) {
+        label.classList.add("form-control-invalid");
+        message_field.textContent = error;
+      } else {
+        label.classList.remove("form-control-invalid")
+        message_field.textContent = "";
+      }
+      if (index === 0) element.focus();
+      index++
+    }
+  }
+}
+
 function transition_helper({
   skip = false,
   class_names = { enter: [], leave: [] },
@@ -119,7 +151,8 @@ class App {
     this.navigation_promise = null;
     this.webapp = webapp;
     this.last_main_btn_fn = null;
-    this.initData = webapp.initDataUnsafe;
+    this.init_data = webapp.initDataUnsafe;
+    this.user = this.init_data.user;
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
@@ -180,12 +213,24 @@ class App {
     this.navigation.navigate("/recipes/new");
   }
 
+  async request(url, options) {
+    if (this.user && options.body && options.body instanceof FormData) {
+      options.body.append("user_id", this.user.id);
+      options.body.append("user_fullname", this.user.first_name + " " + this.user.last_name);
+    };
+
+    return await fetch(url, options);
+  }
+
   async on_recipe_save() {
     let new_recipe_form = document.getElementById("new-recipe-form");
     let body = new FormData(new_recipe_form);
     this.update_main_button("recipe-save-intent");
-    let response = await fetch(new_recipe_form.action, { method: new_recipe_form.method, body });
-    if (response.redirected) navigation.navigate(response.url);
+    let enable_form = disable_form(new_recipe_form);
+    let response = await this.request(new_recipe_form.action, { method: new_recipe_form.method, body });
+    let result = await response.json().catch(() => {});
+    enable_form(result);
+    if (response.redirected) this.navigation.navigate(response.url);
   }
 
   view_transition(type, path) {

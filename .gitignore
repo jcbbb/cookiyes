@@ -5,3 +5,5 @@ tmp/
 *.sqlite
 node_modules
 .env
+db.sqlite-shm
+db.sqlite-wal

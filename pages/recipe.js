@@ -1,6 +1,7 @@
 import { layout } from "./index.js";
 import { db } from "../db.js";
 import { marked } from "marked";
+import { create_validator, NEW_RECIPE_RULES } from "../validation.js";
 
 export function render_single(recipe) {
   return layout(`
@@ -26,22 +27,29 @@ export function render_new(categories) {
         <label>
           <span class="text-sm font-medium uppercase">Title</span>
           <input type="text" class="form-control mt-2" name="name" autocomplete="off" spellcheck="off" required />
+          <small></small>
         </label>
         <label>
-          <input type="hidden" name="instructions" value="## Ingredients\n" />
+          <span class="text-sm font-medium uppercase">Prep time (in minutes)</span>
+          <input type="text" class="form-control mt-2" name="prep_time" autocomplete="off" spellcheck="off" required placeholder="5" />
+          <small></small>
+        </label>
+        <label>
+          <input type="hidden" name="ingredients_prefix" value="## Ingredients\n"
           <span class="text-sm font-medium uppercase">Ingredients</span>
-          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="- One bread\n- 300ml milk" required></textarea>
-          <input type="hidden" name="instructions" value="\n" />
+          <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="ingredients" placeholder="- One bread\n- 300ml milk" required></textarea>
+          <small></small>
         </label>
         <label>
-          <input type="hidden" name="instructions" value="## Instructions\n" />
+          <input type="hidden" name="instructions_prefix" value="## Instructions\n" />
           <span class="text-sm font-medium uppercase">Instructions</span>
           <textarea autocomplete="off" spellcheck="off" type="text" rows="5" class="form-control mt-2" name="instructions" placeholder="1. Slice the bread\n2. Put in the milk" required></textarea>
-          <input type="hidden" name="instructions" value="\n" />
+          <small></small>
         </label>
         <label>
           <span class="text-sm font-medium uppercase">Preview url</span>
           <input type="url" class="form-control mt-2" name="preview_url" spellcheck="off" required />
+          <small></small>
         </label>
         <label>
           <span class="text-sm font-medium uppercase">Category</span>
@@ -50,6 +58,7 @@ export function render_new(categories) {
               return `<option value="${category.id}">${category.name}</option>`
             }).join("")}
           </select>
+          <small></small>
         </label>
       </form>
     </main>
@@ -68,15 +77,20 @@ export function handle_new_recipe_view() {
 }
 
 export async function handle_new_recipe(req) {
-  let formdata = await req.formData();
-  let $instructions = marked.parse(formdata.getAll("instructions").join(""));
-  let $preview_url = formdata.get("preview_url");
-  let $name = formdata.get("name");
-  let $category_id = formdata.get("category_id");
-  let insert_recipe_category = db.prepare("insert into recipe_categories (recipe_id, category_id) values ($recipe_id, $category_id)");
-  let insert_recipe = db.prepare("insert into recipes (name, created_by, preview_url, instructions) values ($name, $created_by, $preview_url, $instructions) returning id");
-  let { id } = insert_recipe.get({ $name, $preview_url, $instructions });
-  insert_recipe_category.run({ $category_id, $recipe_id: id });
+  let data = Object.fromEntries(await req.formData());
+  let validate = create_validator(NEW_RECIPE_RULES);
+  let validation_result = validate(data);
+  if (Object.keys(validation_result).length) {
+    return new Response(JSON.stringify(validation_result), { headers: { "Content-Type": "application/json", status: 422 } });
+  }
+
+  let instructions = marked.parse([data.ingredients_prefix + data.ingredients, data.instructions_prefix + data.instructions].join("\n"));
+
+  let insert_recipe_category = db.query("insert into recipe_categories (recipe_id, category_id) values (?1, ?2)");
+  let insert_recipe = db.query("insert into recipes (name, preview_url, instructions, prep_time, user_id, user_fullname) values (?1, ?2, ?3, ?4, ?5, ?6) returning id");
+  let { id } = insert_recipe.get(data.name, data.preview_url, instructions, data.prep_time, data.user_id, data.user_fullname);
+
+  insert_recipe_category.run(id, data.category_id);
   return Response.redirect(`/recipes/${id}`);
 }
 

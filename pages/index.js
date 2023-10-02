@@ -74,9 +74,9 @@ function home(categories = [], recipes = []) {
                 <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
                 <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
                 <div class="flex flex-col p-3 h-[calc(100%-11rem)]">
-                  <span class="uppercase text-xs font-medium text-purple">5 min</span>
+                  <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
                   <span class="font-bold mb-2">${recipe.name}</span>
-                  <span class="text-xs font-medium mt-auto text-black/80">by Sarah</span>
+                  <span class="text-xs font-medium mt-auto text-black/80">by ${recipe.user_id ? recipe.user_info.first_name : "Anonymous"}</span>
                 </div>
               </li>`
           }).join("")}
