@@ -134,7 +134,6 @@ class App {
     this.update_main_button();
 
     this.back_btn.onClick(this.on_back_button.bind(this));
-    this.back_btn.show();
     this.main_btn.show();
   }
 
@@ -277,6 +276,9 @@ class App {
       let from_path = location.pathname;
       if (e.from) from_path = new URL(e.from.url).pathname;
       let is_back = this.is_back_navigation(e);
+
+      if (this.navigation.canGoBack) this.back_btn.show();
+      else this.back_btn.hide();
 
       if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
         e.intercept({
