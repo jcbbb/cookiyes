@@ -9,7 +9,7 @@ export function render_single(recipe) {
       <img class="w-full object-cover h-72 full-thumbnail" src="${recipe.preview_url}" />
       <div class="p-6 lg:px-0">
         <h1 class="text-2xl font-bold">${recipe.name}</h1>
-        <span class="text-sm text-black/80 mt-auto">by ${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span>
+        <p class="text-sm text-black/80 mt-auto">by <span class="author">${recipe.user_fullname ? recipe.user_fullname : "Anonymous"}</span></p>
       </div>
     </header>
     <main class="flex flex-col px-6 lg:px-0">
