@@ -18,10 +18,10 @@ export function render_single(recipe) {
 
 export function render_new(categories) {
   return layout(`
-    <header class="pt-10 px-6">
+    <header class="pt-10 px-6 lg:px-0">
       <h1 class="text-2xl font-bold">New recipe</h1>
     </header>
-    <main class="p-6">
+    <main class="p-6 lg:px-0">
       <form action="/recipes" method="post" id="new-recipe-form" class="flex flex-col space-y-3" enctype="multipart/form-data">
         <label>
           <span class="text-sm font-medium uppercase">Title</span>

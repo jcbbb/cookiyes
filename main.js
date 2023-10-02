@@ -79,7 +79,7 @@ let RECIPE_REGEX = /\/recipes\/\d+$/;
 function get_nav_type(from_path, to_path) {
   if ((from_path === "/" || from_path.startsWith("/c") || from_path.startsWith("/search")) && RECIPE_REGEX.test(to_path)) {
     return "to-recipe";
-  } else if (RECIPE_REGEX.test(from_path) && (to_path === "/" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
+  } else if (RECIPE_REGEX.test(from_path) && (to_path === "/" || to_path === "/recipes/new" || to_path.startsWith("/c") || to_path.startsWith("/search"))) {
     return "from-recipe";
   } else if (from_path === "/" && to_path.startsWith("/c")) {
     return "to-category";
@@ -98,6 +98,8 @@ let parser = new DOMParser();
 
 class App {
   constructor(webapp) {
+    console.log(webapp);
+    console.log(webapp.initDataUnsafe);
     this.navigation = window.navigation;
     this.navigation_promise = null;
     this.webapp = webapp;
