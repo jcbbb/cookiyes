@@ -14,14 +14,13 @@ if (subcommand) {
 
 bot.launch();
 
-// TODO: fix search results;
-
 let handlers = {
   "GET": {
     "^/$": handle_home_view,
     "^/public/js/main.js$": () => new Response(Bun.file("./public/js/main.js")),
     "^/public/js/search.js$": () => new Response(Bun.file("./public/js/search.js")),
     "^/public/js/navigation.js$": () => new Response(Bun.file("./public/js/navigation.js")),
+    "^/public/js/utils.js$": () => new Response(Bun.file("./public/js/utils.js")),
     "^/public/css/main.min.css$": () => new Response(Bun.file("./public/css/main.min.css")),
     "^/recipes/new": handle_new_recipe_view,
     "^/recipes/(?<id>\\w+)$": handle_single_recipe_view,

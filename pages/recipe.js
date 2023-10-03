@@ -158,7 +158,11 @@ export function handle_search_results(req) {
 export function handle_search_view(req) {
   let { q = "" } = req.query;
   let recipe_query = db.query("select * from recipes where name like ?1");
-  return new Response(render_search_view(recipe_query.all(`%${q.toLowerCase()}%`), q), { headers: { "Content-Type": "text/html" } });
+  let results = [];
+  if (q) {
+    results = recipe_query(`%${q.toLowerCase()}%`);
+  }
+  return new Response(render_search_view(results, q), { headers: { "Content-Type": "text/html" } });
 }
 
 function render_category_recipes(recipes, category) {
