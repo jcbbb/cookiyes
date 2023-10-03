@@ -19,15 +19,15 @@ bot.launch();
 let handlers = {
   "GET": {
     "^/$": handle_home_view,
-    "^/main.js": () => new Response(Bun.file("./main.js")),
-    "^/search.js": () => new Response(Bun.file("./search.js")),
-    "^/navigation.js": () => new Response(Bun.file("./navigation.js")),
-    "^/main.min.css": () => new Response(Bun.file("./main.min.css")),
+    "^/public/js/main.js$": () => new Response(Bun.file("./public/js/main.js")),
+    "^/public/js/search.js$": () => new Response(Bun.file("./public/js/search.js")),
+    "^/public/js/navigation.js$": () => new Response(Bun.file("./public/js/navigation.js")),
+    "^/public/css/main.min.css$": () => new Response(Bun.file("./public/css/main.min.css")),
     "^/recipes/new": handle_new_recipe_view,
     "^/recipes/(?<id>\\w+)$": handle_single_recipe_view,
     "^/c/(?<id>\\w+)$": handle_category_view,
-    "^/search/results": handle_search_results,
-    "^/search": handle_search_view,
+    "^/search/results$": handle_search_results,
+    "^/search$": handle_search_view,
   },
   "POST": {
     "^/recipes": handle_new_recipe,
@@ -42,6 +42,7 @@ let server = Bun.serve({
     let idx = paths.findIndex((p) => new RegExp(p).test(url.pathname));
     let { groups } = url.pathname.match(new RegExp(paths[idx]));
     req.params = groups;
+    req.query = Object.fromEntries(url.searchParams);
     let handle = handlers[req.method][paths[idx]];
     if (handle) return handle(req);
     else return new Response("<h1>Not found</h1>", { status: 404, headers: { "Content-Type": "text/plain" } })

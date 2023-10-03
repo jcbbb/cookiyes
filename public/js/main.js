@@ -1,5 +1,6 @@
 let ongoing_transition;
 let parser = new DOMParser();
+// window.navigation = null;
 
 // TODO: fix loading scripts on new page;
 // TODO: fix backwards animation from recipe to new recipe form;
@@ -7,30 +8,6 @@ async function get_content(url) {
   let response = await fetch(url);
   return await response.text();
 }
-
-// function execute_scripts(el) {
-//   let scripts = el.querySelectorAll("script[dynamic='true']");
-//   for (let script of scripts) {
-//     let new_script = document.createElement("script");
-//     let script_text = document.createTextNode(script.innerHTML);
-
-//     Array.from(script.attributes).forEach(attr => {
-//       new_script.setAttribute(attr.name, attr.value);
-//     });
-
-//     new_script.async = false;
-//     new_script.append(script_text);
-
-//     let parent = script.parentElement;
-//     try {
-//       parent.insertBefore(new_script, script);
-//     }
-//     catch (e) {}
-//     finally {
-//       if (script.parentElement) script.parentElement.removeChild(script);
-//     }
-//   }
-// }
 
 async function option(promise) {
   try {
@@ -63,21 +40,19 @@ function disable_form(form) {
   return function enable_form(error_object) {
     fns.forEach(fn => fn());
     if (!error_object) return;
-    let index = 0;
     for (let element of elements) {
       if (element.nodeName === "BUTTON") continue;
       let error = error_object[element.name];
       let label = element.closest("label");
       let message_field = label.querySelector("small");
       if (error) {
+        if (!document.hasFocus()) element.focus();
         label.classList.add("form-control-invalid");
         message_field.textContent = error;
       } else {
         label.classList.remove("form-control-invalid")
         message_field.textContent = "";
       }
-      if (index === 0) element.focus();
-      index++
     }
   }
 }
@@ -137,6 +112,25 @@ function get_nav_type(from_path, to_path) {
   }
 }
 
+let components = {
+  "^/search": async () => await import("/public/js/search.js"),
+}
+
+let component_keys = Object.keys(components);
+
+async function mount_component(path) {
+  let idx = component_keys.findIndex((k) => new RegExp(k).test(path));
+  let load_module = components[component_keys[idx]];
+  if (load_module) {
+    let [module, err] = await option(load_module());
+    if (err) {
+      console.error(err.message);
+      return;
+    }
+    return module.mount();
+  }
+}
+
 class App {
   constructor(webapp) {
     this.navigation = window.navigation;
@@ -148,6 +142,7 @@ class App {
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
+    this.unmount;
 
     this.setup();
   }
@@ -288,12 +283,14 @@ class App {
 
     if (is_back) document.documentElement.classList.add("backwards");
 
+    if (this.unmount) this.unmount();
     let ctx = this;
     let transition = perform_transition({
       class_names: { enter: ["enter"], leave: ["leave"] },
       is_back,
-      update_dom() {
+      async update_dom() {
         document.body.innerHTML = doc.body.innerHTML;
+        ctx.unmount = await mount_component(to_path);
         cleanups.push(ctx.view_transition(type, from_path));
         ctx.update_main_button(to_path);
       }
@@ -314,8 +311,8 @@ class App {
       this.navigation = new module.Navigation();
     }
 
-    this.setup_navigation(this.on_navigate.bind(this));
     this.webapp.ready();
+    this.setup_navigation(this.on_navigate.bind(this));
     this.update_main_button();
 
     this.back_btn.onClick(this.on_back_button.bind(this));
@@ -328,8 +325,11 @@ class App {
       let to = new URL(e.destination.url);
       if (location.origin !== to.origin) return;
 
-      let from_path = location.pathname;
-      if (e.from) from_path = new URL(e.from.url).pathname;
+      let from_path = location.pathname + location.search;
+      if (e.from) {
+        let url = new URL(e.from.url);
+        from_path = url.pathname + url.search;
+      }
       let is_back = this.is_back_navigation(e);
 
       if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
@@ -337,7 +337,7 @@ class App {
           scroll: "manual",
           async handler() {
             if (e.info === "ignore") return;
-            await cb({ from_path, to_path: to.pathname, is_back })
+            await cb({ from_path, to_path: to.pathname + to.search, is_back })
             await ongoing_transition?.updateCallbackDone;
 
             e.scroll();

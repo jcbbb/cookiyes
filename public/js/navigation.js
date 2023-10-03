@@ -3,7 +3,7 @@ const HISTORY_ENTRIES_KEY = "history_entries";
 const HISTORY_CURRENT_KEY = "history_current_index";
 
 class NavEvent {
-  constructor({ canIntercept = true, from, destination, formData = false, hashChange = false, downloadRequest = false, navigationType } = {}) {
+  constructor({ canIntercept = true, from, destination, formData = false, hashChange = false, downloadRequest = false, navigationType, info } = {}) {
     this.canIntercept = canIntercept;
     this.destination = destination;
     this.from = from;
@@ -12,6 +12,7 @@ class NavEvent {
     this.downloadRequest = downloadRequest;
     this.navigationType = navigationType;
     this.handler = null;
+    this.info = info;
   }
 
   intercept({ handler } = {}) {
@@ -55,7 +56,7 @@ export class Navigation {
     this.boost_links();
     this.save_state();
 
-    window.addEventListener("popstate", function (e) {
+    window.addEventListener("popstate", async function (e) {
       let is_back = this.current_entry_index > (e.state?.index || -1);
       if (is_back && this.canGoBack) {
         let navigate_handlers = this.listeners.get("navigate");
@@ -66,14 +67,13 @@ export class Navigation {
             from: this.entries[this.current_entry_index]
           });
 
-          Promise.resolve(handle(event)).then(() => {
-            if (event.handler) {
-              Promise.resolve(event.handler()).then(() => {
-                this.boost_links();
-              });
-            } else this.boost_links();
-          })
+          await handle(event);
+          if (event.handler) {
+            await event.handler();
+            this.boost_links();
+          }
         }
+
         this.current_entry_index -= 1;
         this.save_state();
       } else if (this.canGoForward) {
@@ -85,13 +85,11 @@ export class Navigation {
             from: this.entries[this.current_entry_index]
           });
 
-          Promise.resolve(handle(event)).then(() => {
-            if (event.handler) {
-              Promise.resolve(event.handler()).then(() => {
-                this.boost_links();
-              });
-            } else this.boost_links();
-          })
+          await handle(event);
+          if (event.handler) {
+            await event.handler();
+            this.boost_links();
+          }
         }
 
         this.current_entry_index += 1;
@@ -134,9 +132,6 @@ export class Navigation {
     return this.entries;
   }
 
-  traverseTo(key) {
-  }
-
   clean() {
     let new_entries = [];
     for (let i = 0; i < this.entries.length; i++) {
@@ -147,29 +142,26 @@ export class Navigation {
     this.entries = new_entries;
   }
 
-  navigate(url, options) {
+  async navigate(url, options = {}) {
     this.clean();
     let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + 1 });
     // TODO: we are not pushing to history if no events defined; Maybe fix?
+    if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
+    else window.history.pushState(destination, "", destination.url);
     let navigate_handlers = this.listeners.get("navigate");
-
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
-        navigationType: "push",
+        navigationType: options.history || "push",
+        info: options.info,
+        from: this.entries[this.current_entry_index]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) {
-          Promise.resolve(event.handler()).then(() => {
-            window.history.pushState(destination, "", destination.url);
-            this.boost_links();
-          });
-        } else {
-          window.history.pushState(destination, "", destination.url);
-          this.boost_links();
-        }
-      });
+      await handle(event);
+      if (event.handler) {
+        await event.handler();
+        this.boost_links();
+      }
     }
 
     this.current_entry_index += 1
@@ -177,10 +169,11 @@ export class Navigation {
     this.save_state();
   }
 
-  back() {
+  async back() {
     if (!this.canGoBack) return;
 
     let destination = this.entries[this.current_entry_index - 1];
+    window.history.back();
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
@@ -189,24 +182,22 @@ export class Navigation {
         from: this.entries[this.current_entry_index]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) {
-          Promise.resolve(event.handler()).then(() => {
-            window.history.back();
-          })
-        } else {
-          window.history.back();
-        }
-      })
+      await handle(event);
+
+      if (event.handler) {
+        await event.handler();
+        this.boost_links();
+      }
     }
 
     this.current_entry_index -= 1;
     this.save_state();
   }
 
-  forward() {
+  async forward() {
     if (!this.canGoForward) return;
     let destination = this.entries[this.current_entry_index + 1];
+    window.history.forward();
     let navigate_handlers = this.listeners.get("navigate");
 
     for (let handle of navigate_handlers) {
@@ -216,15 +207,11 @@ export class Navigation {
         from: this.entries[this.current_entry_index]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) {
-          Promise.resolve(event.handler()).then(() => {
-            window.history.forward();
-          })
-        } else {
-          window.history.forward();
-        }
-      })
+      await handle(event);
+      if (event.handler) {
+        await event.handler();
+        this.boost_links();
+      }
     }
 
     this.current_entry_index += 1;

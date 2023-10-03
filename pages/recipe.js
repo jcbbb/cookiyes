@@ -110,7 +110,7 @@ export async function handle_new_recipe(req) {
   return Response.redirect(`/recipes/${id}`);
 }
 
-export function render_search_view() {
+export function render_search_view(recipes, q = "") {
   return layout({
     meta: {
       title: "Search",
@@ -120,12 +120,14 @@ export function render_search_view() {
     content: `
       <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0 main-header">
         <form action="/search/results">
-          <input type="search" name="query" class="form-control" id="search-input" placeholder="Search for food" autofocus />
+          <input type="search" name="q" class="form-control" value="${q}" id="search-input" placeholder="Search for food" autofocus spellcheck="false" />
         </form>
       </header>
       <main class="px-6 lg:px-0">
+        ${render_search_results(recipes)}
       </main>
-      <script src="/search.js" defer async dynamic="true"></script>`
+      <script src="/public/js/search.js" async defer></script>
+      `
   })
 }
 
@@ -137,7 +139,7 @@ export function render_search_results(recipes) {
           <a href="/recipes/${recipe.id}" class="flex p-2 gap-2 duration-300 rounded-2xl">
             <img class="w-14 h-14 object-cover rounded-2xl" src="${recipe.preview_url}" />
             <div class="flex flex-col">
-              <span class="uppercase text-xs font-medium text-purple">{recipe.prep_time} min</span>
+              <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
               <span class="font-bold text-black">${recipe.name}</span>
               <span class="text-xs font-medium text-black/80 mt-auto">by ${recipe.user_fullname || "Anonymous"}</span>
             </div>
@@ -148,14 +150,15 @@ export function render_search_results(recipes) {
 }
 
 export function handle_search_results(req) {
-  let url = new URL(req.url);
-  let query = url.searchParams.get("query").toLowerCase();
+  let { q = "" } = req.query;
   let recipe_query = db.query("select * from recipes where name like ?1");
-  return new Response(render_search_results(recipe_query.all(`%${query}%`)), { headers: { "Content-Type": "text/html" } });
+  return new Response(render_search_results(recipe_query.all(`%${q.toLowerCase()}%`)), { headers: { "Content-Type": "text/html" } });
 }
 
-export function handle_search_view() {
-  return new Response(render_search_view(), { headers: { "Content-Type": "text/html" } });
+export function handle_search_view(req) {
+  let { q = "" } = req.query;
+  let recipe_query = db.query("select * from recipes where name like ?1");
+  return new Response(render_search_view(recipe_query.all(`%${q.toLowerCase()}%`), q), { headers: { "Content-Type": "text/html" } });
 }
 
 function render_category_recipes(recipes, category) {
