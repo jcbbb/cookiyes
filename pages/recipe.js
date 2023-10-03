@@ -133,14 +133,14 @@ export function render_search_view(recipes, q = "") {
 
 export function render_search_results(recipes) {
   return `
-    <ul class="bg-caramel-400 rounded-2xl">
+    <ul class="space-y-2">
       ${recipes.map((recipe) => {
-        return `<li>
-          <a href="/recipes/${recipe.id}" class="flex p-2 gap-2 duration-300 rounded-2xl">
-            <img class="w-14 h-14 object-cover rounded-2xl" src="${recipe.preview_url}" />
+        return `<li class="bg-caramel-400 dark:bg-black-700 dark:text-white rounded-xl">
+          <a href="/recipes/${recipe.id}" class="flex p-2.5 gap-2 duration-300 rounded-2xl">
+            <img class="w-16 h-16 object-cover rounded-2xl" src="${recipe.preview_url}" />
             <div class="flex flex-col">
               <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
-              <span class="font-bold text-black">${recipe.name}</span>
+              <span class="font-bold">${recipe.name}</span>
               <span class="text-xs font-medium text-black/80 mt-auto">by ${recipe.user_fullname || "Anonymous"}</span>
             </div>
           </a>
