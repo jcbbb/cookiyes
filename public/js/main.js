@@ -14,20 +14,24 @@ function should_not_intercept(e) {
 
 function perform_transition({
   skip = false,
-  class_names = { enter: [], leave: [] },
+  class_names = { enter: "", leave: "" },
   update_dom,
 }) {
   if (skip || !document.startViewTransition) {
-    document.documentElement.classList.add(...class_names.leave)
-    let on_animation_end = () => {
-      document.documentElement.classList.remove(...class_names.enter);
-    }
-    let updateCallbackDone = Promise.resolve(update_dom()).then(() => {
-      document.documentElement.classList.remove(...class_names.leave);
-      document.documentElement.classList.add(...class_names.enter);
-      document.documentElement.addEventListener("animationend", on_animation_end, { once: true });
-      return undefined;
+    document.body.classList.add(class_names.leave);
+    let resolve
+    let updateCallbackDone = new Promise(async (res) => {
+      resolve = res;
+      await update_dom();
+      document.body.classList.remove(class_names.leave);
+      document.body.classList.add(class_names.enter);
+      document.body.addEventListener("animationend", () => document.body.classList.remove(class_names.enter), { once: true });
     });
+
+    document.body.addEventListener("animationend", () => {
+      document.body.classList.remove(class_names.enter);
+      resolve();
+    }, { once: true })
 
     return {
       ready: () => Promise.reject(Error('View transitions unsupported')),
@@ -94,6 +98,7 @@ class App {
     this.init_data = webapp.initDataUnsafe;
     this.user = this.init_data.user;
     this.haptic_feedback = webapp.HapticFeedback;
+    this.navigation_api_supported = !!window.navigation;
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
@@ -236,12 +241,12 @@ class App {
 
     let cleanups = [this.view_transition(type, to_path)];
 
-    if (is_back) document.documentElement.classList.add("backwards");
+    if (is_back) document.body.classList.add("backwards");
 
     if (this.unmount) this.unmount();
     let ctx = this;
     let transition = perform_transition({
-      class_names: { enter: ["enter"], leave: ["leave"] },
+      class_names: { enter: "enter", leave: "leave" },
       is_back,
       async update_dom() {
         document.body.innerHTML = doc.body.innerHTML;
@@ -253,8 +258,10 @@ class App {
 
     transition.finished.finally(() => {
       cleanups.forEach(fn => fn());
-      if (is_back) document.documentElement.classList.remove("backwards");
+      if (is_back) document.body.classList.remove("backwards");
     });
+
+    return transition.finished;
   }
 
   async setup() {

@@ -870,6 +870,7 @@ video {
 
 html {
   color-scheme: light;
+  overflow: hidden;
   /* Base colors */
   --caramel: 235, 219, 178;
   --caramel-400: 243, 234, 210;
@@ -915,7 +916,7 @@ html.dark {
   --default-text: var(--white);
 }
 
-body {
+html {
   background-color: rgb(var(--bg));
   color: rgb(var(--default-text));
   font-family: 'Inter', sans-serif;

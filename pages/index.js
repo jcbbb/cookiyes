@@ -1,7 +1,7 @@
 import { db } from "../db.js";
 import { render_recipe_cards } from "./recipe.js";
 
-export function layout(props = { meta = {  }, content = "" } = {}) {
+export function layout(props = { meta = {}, content = "" } = {}) {
   return `
     <!doctype html>
     <html>
@@ -42,7 +42,7 @@ export function layout(props = { meta = {  }, content = "" } = {}) {
         </script>
       </head>
       <body>
-        <div class="max-w-lg mx-auto">
+        <div class="max-w-lg mx-auto wrapper">
           ${props.content}
         </div>
         <script src="/public/js/main.js" type="module" defer async></script>
@@ -76,7 +76,7 @@ function home(categories = [], recipes = []) {
           <h2 class="px-6 text-sm tracking-widest font-medium uppercase lg:px-0">Popular categories</h2>
           <ul class="flex gap-3 mt-3 overflow-x-auto hide-scroll">
             ${categories.map((category) => {
-              return `
+      return `
                 <li class="first:ml-6 last:mr-6 lg:first:ml-0 shrink-0">
                   <a href="/c/${category.id}" class="flex flex-col items-center">
                     <div style="background-color: ${category.bg_hex}" class="w-16 h-16 rounded-full p-2">
@@ -86,7 +86,7 @@ function home(categories = [], recipes = []) {
                     </a>
                 </li>
               `
-            }).join("")}
+    }).join("")}
           </ul>
         </section>
         <section class="px-6 lg:px-0">

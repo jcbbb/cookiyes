@@ -134,17 +134,17 @@ export function render_search_results(recipes) {
   return `
     <ul class="space-y-2">
       ${recipes.map((recipe) => {
-    return `<li class="bg-caramel-400 dark:bg-black-700 dark:text-white rounded-xl">
-          <a href="/recipes/${recipe.id}" class="flex p-2.5 gap-2 duration-300 rounded-2xl">
-            <img class="w-16 h-16 object-cover rounded-2xl" src="${recipe.preview_url}" />
-            <div class="flex flex-col">
-              <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
-              <span class="font-bold">${recipe.name}</span>
-              <span class="text-xs font-medium text-black/80 mt-auto">by ${recipe.user_fullname || "Anonymous"}</span>
-            </div>
-          </a>
-        </li>`
-  }).join("")}
+      return `<li class="bg-caramel-400 dark:bg-black-700 dark:text-white rounded-xl">
+            <a href="/recipes/${recipe.id}" class="flex p-2.5 gap-2 duration-300 rounded-2xl">
+              <img class="w-16 h-16 object-cover rounded-2xl" src="${recipe.preview_url}" />
+              <div class="flex flex-col">
+                <span class="uppercase text-xs font-medium text-purple">${recipe.prep_time} min</span>
+                <span class="font-bold">${recipe.name}</span>
+                <span class="text-xs font-medium text-black/80 mt-auto">by ${recipe.user_fullname || "Anonymous"}</span>
+              </div>
+            </a>
+          </li>`
+    }).join("")}
     </ul>`
 }
 
@@ -154,7 +154,7 @@ export function handle_search_results(req) {
   return new Response(render_search_results(recipe_query.all(`%${q.toLowerCase()}%`)), { headers: { "Content-Type": "text/html" } });
 }
 
-export function handle_search_view(req) {
+export async function handle_search_view(req) {
   let { q = "" } = req.query;
   let recipe_query = db.query("select * from recipes where name like ?1");
   let results = [];

@@ -146,8 +146,6 @@ export class Navigation {
     this.clean();
     let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + 1 });
     // TODO: we are not pushing to history if no events defined; Maybe fix?
-    if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
-    else window.history.pushState(destination, "", destination.url);
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
@@ -164,6 +162,8 @@ export class Navigation {
       }
     }
 
+    if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
+    else window.history.pushState(destination, "", destination.url);
     this.current_entry_index += 1
     this.entries.push(destination);
     this.save_state();
@@ -171,9 +171,7 @@ export class Navigation {
 
   async back() {
     if (!this.canGoBack) return;
-
     let destination = this.entries[this.current_entry_index - 1];
-    window.history.back();
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
@@ -190,6 +188,7 @@ export class Navigation {
       }
     }
 
+    window.history.back();
     this.current_entry_index -= 1;
     this.save_state();
   }
@@ -197,9 +196,7 @@ export class Navigation {
   async forward() {
     if (!this.canGoForward) return;
     let destination = this.entries[this.current_entry_index + 1];
-    window.history.forward();
     let navigate_handlers = this.listeners.get("navigate");
-
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
@@ -214,6 +211,7 @@ export class Navigation {
       }
     }
 
+    window.history.forward();
     this.current_entry_index += 1;
     this.save_state();
   }
