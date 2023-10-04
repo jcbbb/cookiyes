@@ -4,7 +4,7 @@
 
 html {
   color-scheme: light;
-  overflow: hidden;
+  overflow-x: hidden;
 
   /* Base colors */
   --caramel: 235, 219, 178;
