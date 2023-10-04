@@ -869,8 +869,6 @@ video {
 }
 
 html {
-  color-scheme: light;
-  overflow-x: hidden;
   /* Base colors */
   --caramel: 235, 219, 178;
   --caramel-400: 243, 234, 210;
@@ -906,6 +904,11 @@ html {
   /* Form control */
   --form-control-bg: var(--caramel-400);
   --form-control-color: var(--black);
+  color-scheme: light;
+  overflow-x: hidden;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--default-text));
+  font-family: 'Inter', sans-serif;
 }
 
 html.dark {
@@ -914,12 +917,6 @@ html.dark {
   --form-control-bg: var(--black-700);
   --form-control-color: var(--white);
   --default-text: var(--white);
-}
-
-html {
-  background-color: rgb(var(--bg));
-  color: rgb(var(--default-text));
-  font-family: 'Inter', sans-serif;
 }
 
 .form-control {
