@@ -154,7 +154,7 @@ export function handle_search_results(req) {
   return new Response(render_search_results(recipe_query.all(`%${q.toLowerCase()}%`)), { headers: { "Content-Type": "text/html" } });
 }
 
-export async function handle_search_view(req) {
+export function handle_search_view(req) {
   let { q = "" } = req.query;
   let recipe_query = db.query("select * from recipes where name like ?1");
   let results = [];

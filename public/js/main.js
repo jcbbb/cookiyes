@@ -20,17 +20,15 @@ function perform_transition({
   if (skip || !document.startViewTransition) {
     document.body.classList.add(class_names.leave);
     let resolve
-    let updateCallbackDone = new Promise(async (res) => {
-      resolve = res;
+    let updateCallbackDone = new Promise((res) => resolve = res);
+    document.body.addEventListener("animationend", async () => {
       await update_dom();
       document.body.classList.remove(class_names.leave);
       document.body.classList.add(class_names.enter);
-      document.body.addEventListener("animationend", () => document.body.classList.remove(class_names.enter), { once: true });
-    });
-
-    document.body.addEventListener("animationend", () => {
-      document.body.classList.remove(class_names.enter);
-      resolve();
+      document.body.addEventListener("animationend", () => {
+        document.body.classList.remove(class_names.enter)
+        resolve();
+      }, { once: true });
     }, { once: true })
 
     return {
@@ -234,7 +232,6 @@ class App {
   async on_navigate({ from_path, to_path, is_back }) {
     if (this.navigation.canGoBack) this.back_btn.show();
     else this.back_btn.hide();
-
     let content = await get_content(to_path);
     let doc = parser.parseFromString(content, "text/html");
     let type = get_nav_type(from_path, to_path);
