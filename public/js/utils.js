@@ -1,4 +1,3 @@
-
 export async function get_content(url) {
   let response = await fetch(url);
   return await response.text();

@@ -1,4 +1,4 @@
-import { option, get_content } from "/public/js/utils.js";
+import { option, get_content, disable_form } from "/public/js/utils.js";
 
 let ongoing_transition;
 let parser = new DOMParser();
