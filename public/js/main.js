@@ -2,7 +2,6 @@ import { option, get_content } from "/public/js/utils.js";
 
 let ongoing_transition;
 let parser = new DOMParser();
-window.navigation = null;
 
 function should_not_intercept(e) {
   return (
@@ -267,6 +266,7 @@ class App {
       this.navigation = new module.Navigation();
     }
 
+    this.unmount = await mount_component(location.pathname);
     this.webapp.ready();
     this.setup_navigation(this.on_navigate.bind(this));
     this.update_main_button();

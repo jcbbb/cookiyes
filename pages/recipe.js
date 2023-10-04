@@ -71,8 +71,8 @@ export function render_new(categories) {
             <span class="text-sm font-medium uppercase">Category</span>
             <select class="form-control mt-2 appearance-none" name="category_id">
               ${categories.map((category) => {
-                return `<option value="${category.id}">${category.name}</option>`
-              }).join("")}
+      return `<option value="${category.id}">${category.name}</option>`
+    }).join("")}
             </select>
             <small></small>
           </label>
@@ -126,7 +126,6 @@ export function render_search_view(recipes, q = "") {
       <main class="px-6 lg:px-0">
         ${render_search_results(recipes)}
       </main>
-      <script src="/public/js/search.js" async defer></script>
       `
   })
 }
@@ -135,7 +134,7 @@ export function render_search_results(recipes) {
   return `
     <ul class="space-y-2">
       ${recipes.map((recipe) => {
-        return `<li class="bg-caramel-400 dark:bg-black-700 dark:text-white rounded-xl">
+    return `<li class="bg-caramel-400 dark:bg-black-700 dark:text-white rounded-xl">
           <a href="/recipes/${recipe.id}" class="flex p-2.5 gap-2 duration-300 rounded-2xl">
             <img class="w-16 h-16 object-cover rounded-2xl" src="${recipe.preview_url}" />
             <div class="flex flex-col">
@@ -145,7 +144,7 @@ export function render_search_results(recipes) {
             </div>
           </a>
         </li>`
-      }).join("")}
+  }).join("")}
     </ul>`
 }
 
@@ -190,7 +189,7 @@ export function render_recipe_cards(recipes) {
   return `
     <ul class="grid grid-cols-1 xs:grid-cols-2 mt-3 pb-6 gap-3">
       ${recipes.map((recipe) => {
-        return `
+    return `
           <li class="bg-caramel-400 rounded-2xl relative overflow-hidden text-black dark:bg-black-700 dark:text-white">
             <a href="/recipes/${recipe.id}" class="absolute block w-full h-full left-0 top-0"></a>
             <img src="${recipe.preview_url}" class="object-cover h-44 w-full" loading="lazy" decoding="async" />
@@ -201,7 +200,7 @@ export function render_recipe_cards(recipes) {
             </div>
           </li>
         `
-      }).join("")}
+  }).join("")}
     </ul>`
 }
 
