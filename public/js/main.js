@@ -1,6 +1,5 @@
 import { option, get_content, disable_form } from "/public/js/utils.js";
 
-let ongoing_transition;
 let parser = new DOMParser();
 
 function should_not_intercept(e) {
@@ -40,11 +39,6 @@ function perform_transition({
   }
 
   let transition = document.startViewTransition(update_dom);
-  ongoing_transition = transition;
-
-  transition.finished.finally(() => {
-    ongoing_transition = undefined;
-  });
 
   return transition;
 }
@@ -258,7 +252,7 @@ class App {
       if (is_back) document.body.classList.remove("backwards");
     });
 
-    return transition.finished;
+    return transition;
   }
 
   async setup() {
@@ -297,12 +291,12 @@ class App {
           scroll: "manual",
           async handler() {
             if (e.info === "ignore") return;
-            await cb({ from_path, to_path: to.pathname + to.search, is_back })
-            await ongoing_transition?.updateCallbackDone;
-
+            let transition = await cb({ from_path, to_path: to.pathname + to.search, is_back })
+            await transition.updateCallbackDone;
             e.scroll();
-
             if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
+
+            return transition;
           }
         })
       }

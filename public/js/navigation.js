@@ -69,8 +69,8 @@ export class Navigation {
 
           await handle(event);
           if (event.handler) {
-            await event.handler();
-            this.boost_links();
+            let transition = await event.handler();
+            transition.finished.finally(this.boost_links.bind(this));
           }
         }
 
@@ -87,8 +87,8 @@ export class Navigation {
 
           await handle(event);
           if (event.handler) {
-            await event.handler();
-            this.boost_links();
+            let transition = await event.handler();
+            transition.finished.finally(this.boost_links.bind(this));
           }
         }
 
@@ -157,8 +157,8 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
-        await event.handler();
-        this.boost_links();
+        let transition = await event.handler();
+        transition.finished.finally(this.boost_links.bind(this));
       }
     }
 
@@ -183,8 +183,8 @@ export class Navigation {
       await handle(event);
 
       if (event.handler) {
-        await event.handler();
-        this.boost_links();
+        let transition = await event.handler();
+        transition.finished.finally(this.boost_links.bind(this));
       }
     }
 
@@ -206,8 +206,8 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
-        await event.handler();
-        this.boost_links();
+        let transition = await event.handler();
+        transition.finished.finally(this.boost_links.bind(this));
       }
     }
 
