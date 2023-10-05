@@ -104,7 +104,7 @@ class App {
   }
 
   on_back_button() {
-    if (this.navigation.current_entry_index > 0) {
+    if (this.navigation.canGoBack) {
       this.navigation.back();
     } else {
       this.offClick(this.on_back_button.bind(this));
@@ -113,11 +113,7 @@ class App {
   }
 
   update_back_button() {
-    console.log("UPDATE_BACK_BUTTON", this.navigation);
-    console.log("CURRENT_ENTRY_INDEX", this.navigation.current_entry_index);
-    console.log("CURRENT_ENTRY", this.navigation.currentEntry)
-    console.log("CAN_GO_BACK", this.navigation.canGoBack);
-    if (this.navigation.current_entry_index > 0) {
+    if (this.navigation.canGoBack) {
       this.back_btn.show();
     } else this.back_btn.hide();
   }
