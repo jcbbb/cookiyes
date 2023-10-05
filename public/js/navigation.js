@@ -73,22 +73,22 @@ export class Navigation {
     let is_back = this.current_entry_index > (e.state?.index || -1);
     let delta = is_back && this.canGoBack ? -1 : 1;
 
+    this.current_entry_index = this.current_entry_index + delta;
+    this.save_state();
+
     let navigate_handlers = this.listeners.get("navigate");
 
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
-        destination: this.entries[this.current_entry_index + delta],
+        destination: this.entries[this.current_entry_index],
         navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
+        from: this.entries[this.current_entry_index - delta]
       });
       await handle(event);
       if (event.handler) {
         await event.handler();
       }
     }
-
-    this.current_entry_index = this.current_entry_index + delta;
-    this.save_state();
   }
 
 
@@ -121,71 +121,75 @@ export class Navigation {
     this.entries = new_entries;
   }
 
-  navigate(url, options = {}) {
+  async navigate(url, options = {}) {
     this.clean();
-    let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + 1 });
-    // TODO: we are not pushing to history if no events defined; Maybe fix?
+    this.current_entry_index += 1
+    let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index });
+    this.entries.push(destination);
+    this.save_state();
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
         navigationType: options.history || "push",
         info: options.info,
-        from: this.entries[this.current_entry_index]
+        from: this.entries[this.current_entry_index - 1]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) event.handler();
-      });
+      await handle(event);
+      if (event.handler) {
+        await event.handler();
+      }
     }
 
     if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
     else window.history.pushState(destination, "", destination.url);
-    this.current_entry_index += 1
-    this.entries.push(destination);
-    this.save_state();
   }
 
-  back() {
+  async back() {
     if (!this.canGoBack) return;
-    let destination = this.entries[this.current_entry_index - 1];
+    this.current_entry_index -= 1;
+    this.save_state();
+
+    let destination = this.entries[this.current_entry_index];
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
         navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
+        from: this.entries[this.current_entry_index + 1]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) event.handler();
-      });
+      await handle(event);
+
+      if (event.handler) {
+        await event.handler();
+      }
     }
 
     window.history.back();
-    this.current_entry_index -= 1;
-    this.save_state();
   }
 
-  forward() {
+  async forward() {
     if (!this.canGoForward) return;
-    let destination = this.entries[this.current_entry_index + 1];
+    this.current_entry_index += 1;
+    this.save_state();
+    let destination = this.entries[this.current_entry_index];
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
         navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
+        from: this.entries[this.current_entry_index - 1]
       });
 
-      Promise.resolve(handle(event)).then(() => {
-        if (event.handler) event.handler();
-      });
+      await handle(event);
+      if (event.handler) {
+        await event.handler();
+      }
     }
 
     window.history.forward();
-    this.current_entry_index += 1;
-    this.save_state();
   }
 
   get currentEntry() {

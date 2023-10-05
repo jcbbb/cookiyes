@@ -255,14 +255,14 @@ class App {
         document.body.innerHTML = doc.body.innerHTML;
         ctx.unmount = await mount_component(to_path);
         cleanups.push(ctx.view_transition(type, from_path));
+        ctx.update_main_button(to_path);
+        ctx.update_back_button();
       }
     });
 
     transition.finished.finally(() => {
       cleanups.forEach(fn => fn());
       if (is_back) document.body.classList.remove("backwards");
-      ctx.update_main_button(to_path);
-      ctx.update_back_button();
     });
 
     return transition;
