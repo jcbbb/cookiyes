@@ -57,7 +57,7 @@ export class Navigation {
 
     window.addEventListener("popstate", async (e) => {
       if (this.popping) await this.popping;
-      this.popping = this.on_popstate(e);
+      this.popping = this.on_popstate(e).then(() => this.popping = null);
     })
 
     document.addEventListener("click", (e) => {
