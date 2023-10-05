@@ -309,3 +309,6 @@ class App {
 }
 
 let app = new App(Telegram.WebApp);
+setInterval(() => {
+  console.log(app);
+}, 5000);
