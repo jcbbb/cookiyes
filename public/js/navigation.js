@@ -45,7 +45,7 @@ export class Navigation {
       ["navigate", new Set()]
     ]);
 
-    this.popping = null;
+    this.navigating = null;
     let existing_index = window.sessionStorage.getItem(HISTORY_CURRENT_KEY);
     this.current_entry_index = Number(existing_index);
     this.entries = (JSON.parse(window.sessionStorage.getItem(HISTORY_ENTRIES_KEY)) || []).map((value) => new NavEntry(value));
@@ -56,15 +56,16 @@ export class Navigation {
     this.save_state();
 
     window.addEventListener("popstate", async (e) => {
-      if (this.popping) await this.popping;
-      this.popping = this.on_popstate(e).then(() => this.popping = null);
+      if (this.navigating) await this.navigating;
+      this.navigating = this.on_popstate(e);
     })
 
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", async (e) => {
       let anchor = e.target.closest("a");
       if (anchor) {
         e.preventDefault();
-        this.navigate(anchor.href);
+        if (this.navigating) await this.navigating;
+        this.navigating = this.navigate(anchor.href);
       }
     })
   }
