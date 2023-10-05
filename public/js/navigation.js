@@ -121,7 +121,7 @@ export class Navigation {
     this.entries = new_entries;
   }
 
-  async navigate(url, options = {}) {
+  navigate(url, options = {}) {
     this.clean();
     let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + 1 });
     // TODO: we are not pushing to history if no events defined; Maybe fix?
@@ -134,10 +134,9 @@ export class Navigation {
         from: this.entries[this.current_entry_index]
       });
 
-      await handle(event);
-      if (event.handler) {
-        await event.handler();
-      }
+      Promise.resolve(handle(event)).then(() => {
+        if (event.handler) event.handler();
+      });
     }
 
     if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
@@ -147,7 +146,7 @@ export class Navigation {
     this.save_state();
   }
 
-  async back() {
+  back() {
     if (!this.canGoBack) return;
     let destination = this.entries[this.current_entry_index - 1];
     let navigate_handlers = this.listeners.get("navigate");
@@ -158,11 +157,9 @@ export class Navigation {
         from: this.entries[this.current_entry_index]
       });
 
-      await handle(event);
-
-      if (event.handler) {
-        await event.handler();
-      }
+      Promise.resolve(handle(event)).then(() => {
+        if (event.handler) event.handler();
+      });
     }
 
     window.history.back();
@@ -170,7 +167,7 @@ export class Navigation {
     this.save_state();
   }
 
-  async forward() {
+  forward() {
     if (!this.canGoForward) return;
     let destination = this.entries[this.current_entry_index + 1];
     let navigate_handlers = this.listeners.get("navigate");
@@ -181,10 +178,9 @@ export class Navigation {
         from: this.entries[this.current_entry_index]
       });
 
-      await handle(event);
-      if (event.handler) {
-        await event.handler();
-      }
+      Promise.resolve(handle(event)).then(() => {
+        if (event.handler) event.handler();
+      });
     }
 
     window.history.forward();
