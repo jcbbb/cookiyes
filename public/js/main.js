@@ -104,7 +104,7 @@ class App {
   }
 
   on_back_button() {
-    if (this.navigation.canGoBack) {
+    if (this.navigation.current_entry_index > 0) {
       this.navigation.back();
     } else {
       this.offClick(this.on_back_button.bind(this));
