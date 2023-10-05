@@ -148,6 +148,8 @@ export class Navigation {
   }
 
   async back() {
+    console.log("Navigation.Back Called");
+    console.log({ canGoBack: this.canGoBack });
     if (!this.canGoBack) return;
     this.current_entry_index -= 1;
     this.save_state();
