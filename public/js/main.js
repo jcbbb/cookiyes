@@ -112,6 +112,14 @@ class App {
     }
   }
 
+  update_back_button() {
+    console.log("UPDATE_BACK_BUTTON", this.navigation);
+    console.log("CAN_GO_BACK", this.navigation.canGoBack);
+    if (this.navigation.canGoBack) {
+      this.back_btn.show();
+    } else this.back_btn.hide();
+  }
+
   update_main_button(whatever) {
     let text;
     let is_visible = true;
@@ -228,8 +236,6 @@ class App {
   }
 
   async on_navigate({ from_path, to_path, is_back }) {
-    if (this.navigation.canGoBack) this.back_btn.show();
-    else this.back_btn.hide();
     let content = await get_content(to_path);
     let doc = parser.parseFromString(content, "text/html");
     let type = get_nav_type(from_path, to_path);
@@ -248,6 +254,7 @@ class App {
         ctx.unmount = await mount_component(to_path);
         cleanups.push(ctx.view_transition(type, from_path));
         ctx.update_main_button(to_path);
+        ctx.update_back_button();
       }
     });
 
