@@ -40,7 +40,6 @@ class NavEntry {
 
 export class Navigation {
   constructor() {
-    this.keys_to_indices = {};
     this.entries = [];
     this.listeners = new Map([
       ["navigate", new Set()]
@@ -54,12 +53,19 @@ export class Navigation {
       this.entries.push(new NavEntry({ url: window.location.href, index: 0 }));
     }
 
-    this.boost_links();
     this.save_state();
 
     window.addEventListener("popstate", async (e) => {
       if (this.popping) await this.popping;
       this.popping = this.on_popstate(e);
+    })
+
+    document.addEventListener("click", (e) => {
+      let anchor = e.target.closest("a");
+      if (anchor) {
+        e.preventDefault();
+        this.navigate(anchor.href);
+      }
     })
   }
 
@@ -77,8 +83,7 @@ export class Navigation {
       });
       await handle(event);
       if (event.handler) {
-        let transition = await event.handler();
-        transition.domUpdated.finally(this.boost_links.bind(this));
+        await event.handler();
       }
     }
 
@@ -90,21 +95,6 @@ export class Navigation {
   save_state() {
     window.sessionStorage.setItem(HISTORY_CURRENT_KEY, this.current_entry_index);
     window.sessionStorage.setItem(HISTORY_ENTRIES_KEY, JSON.stringify(this.entries));
-  }
-
-  boost_links() {
-    document.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        this.navigate(e.currentTarget.href);
-      })
-    });
-  }
-
-  populate_key_set() {
-    for (let i = 0; i < entries.length; i++) {
-      this.keys_to_indices[entry.key] = i
-    }
   }
 
   addEventListener(event, handler) {
@@ -146,8 +136,7 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
-        let transition = await event.handler();
-        transition.domUpdated.finally(this.boost_links.bind(this));
+        await event.handler();
       }
     }
 
@@ -172,8 +161,7 @@ export class Navigation {
       await handle(event);
 
       if (event.handler) {
-        let transition = await event.handler();
-        transition.domUpdated.finally(this.boost_links.bind(this));
+        await event.handler();
       }
     }
 
@@ -195,8 +183,7 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
-        let transition = await event.handler();
-        transition.domUpdated.finally(this.boost_links.bind(this));
+        await event.handler();
       }
     }
 
