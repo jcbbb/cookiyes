@@ -74,7 +74,7 @@ export class Navigation {
     console.log("ON POPSTATE EVENT", e);
     console.log("POPSTATE CURRENT ENTRY INDEX", this.current_entry_index)
     let is_back = this.current_entry_index > (e.state?.index || -1);
-    let delta = is_back && this.canGoBack ? -1 : 1;
+    let delta = is_back ? -1 : 1;
 
     this.current_entry_index = this.current_entry_index + delta;
     this.save_state();
