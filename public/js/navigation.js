@@ -46,6 +46,7 @@ export class Navigation {
       ["navigate", new Set()]
     ]);
 
+    this.popping = null;
     let existing_index = window.sessionStorage.getItem(HISTORY_CURRENT_KEY);
     this.current_entry_index = Number(existing_index);
     this.entries = (JSON.parse(window.sessionStorage.getItem(HISTORY_ENTRIES_KEY)) || []).map((value) => new NavEntry(value));
@@ -56,47 +57,35 @@ export class Navigation {
     this.boost_links();
     this.save_state();
 
-    window.addEventListener("popstate", async function (e) {
-      let is_back = this.current_entry_index > (e.state?.index || -1);
-      if (is_back && this.canGoBack) {
-        let navigate_handlers = this.listeners.get("navigate");
-        for (let handle of navigate_handlers) {
-          let event = new NavEvent({
-            destination: this.entries[this.current_entry_index - 1],
-            navigationType: "traverse",
-            from: this.entries[this.current_entry_index]
-          });
-
-          await handle(event);
-          if (event.handler) {
-            let transition = await event.handler();
-            transition.finished.finally(this.boost_links.bind(this));
-          }
-        }
-
-        this.current_entry_index -= 1;
-        this.save_state();
-      } else if (this.canGoForward) {
-        let navigate_handlers = this.listeners.get("navigate");
-        for (let handle of navigate_handlers) {
-          let event = new NavEvent({
-            destination: this.entries[this.current_entry_index + 1],
-            navigationType: "traverse",
-            from: this.entries[this.current_entry_index]
-          });
-
-          await handle(event);
-          if (event.handler) {
-            let transition = await event.handler();
-            transition.finished.finally(this.boost_links.bind(this));
-          }
-        }
-
-        this.current_entry_index += 1;
-        this.save_state();
-      }
-    }.bind(this));
+    window.addEventListener("popstate", async (e) => {
+      if (this.popping) await this.popping;
+      this.popping = this.on_popstate(e);
+    })
   }
+
+  async on_popstate(e) {
+    let is_back = this.current_entry_index > (e.state?.index || -1);
+    let delta = is_back && this.canGoBack ? -1 : 1;
+
+    let navigate_handlers = this.listeners.get("navigate");
+
+    for (let handle of navigate_handlers) {
+      let event = new NavEvent({
+        destination: this.entries[this.current_entry_index + delta],
+        navigationType: "traverse",
+        from: this.entries[this.current_entry_index]
+      });
+      await handle(event);
+      if (event.handler) {
+        let transition = await event.handler();
+        transition.domUpdated.finally(this.boost_links.bind(this));
+      }
+    }
+
+    this.current_entry_index = this.current_entry_index + delta;
+    this.save_state();
+  }
+
 
   save_state() {
     window.sessionStorage.setItem(HISTORY_CURRENT_KEY, this.current_entry_index);
@@ -158,7 +147,7 @@ export class Navigation {
       await handle(event);
       if (event.handler) {
         let transition = await event.handler();
-        transition.finished.finally(this.boost_links.bind(this));
+        transition.domUpdated.finally(this.boost_links.bind(this));
       }
     }
 
@@ -184,7 +173,7 @@ export class Navigation {
 
       if (event.handler) {
         let transition = await event.handler();
-        transition.finished.finally(this.boost_links.bind(this));
+        transition.domUpdated.finally(this.boost_links.bind(this));
       }
     }
 
@@ -207,7 +196,7 @@ export class Navigation {
       await handle(event);
       if (event.handler) {
         let transition = await event.handler();
-        transition.finished.finally(this.boost_links.bind(this));
+        transition.domUpdated.finally(this.boost_links.bind(this));
       }
     }
 

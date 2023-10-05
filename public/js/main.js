@@ -18,21 +18,25 @@ function perform_transition({
 }) {
   if (skip || !document.startViewTransition) {
     document.body.classList.add(class_names.leave);
-    let resolve
-    let updateCallbackDone = new Promise((res) => resolve = res);
+    let resolveDone
+    let resolveUpdate;
+    let updateCallbackDone = new Promise((res) => resolveDone = res);
+    let domUpdated = new Promise((res) => resolveUpdate = res);
+
     document.body.addEventListener("animationend", async () => {
       await update_dom();
+      resolveUpdate();
       document.body.classList.remove(class_names.leave);
       document.body.classList.add(class_names.enter);
       document.body.addEventListener("animationend", () => {
         document.body.classList.remove(class_names.enter)
-        resolve();
+        resolveDone();
       }, { once: true });
     }, { once: true })
 
     return {
       ready: () => Promise.reject(Error('View transitions unsupported')),
-      domUpdated: updateCallbackDone,
+      domUpdated,
       updateCallbackDone,
       finished: updateCallbackDone,
     }
