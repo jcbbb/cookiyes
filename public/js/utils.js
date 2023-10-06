@@ -1,5 +1,15 @@
+const CACHE_VERSION = 0;
+const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
+
 export async function get_content(url) {
-  let response = await fetch(url);
+  let request = new Request(url);
+  let cache = await caches.open(CACHE_NAME);
+  let cached_response = await cache.match(request);
+  if (cached_response && cached_response.ok) {
+    return await cached_response.text();
+  }
+  let response = await fetch(request);
+  await cache.put(request, response.clone());
   return await response.text();
 }
 
