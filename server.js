@@ -1,5 +1,5 @@
 import { handle_home_view } from "./pages/index.js";
-import { migrate, seed, db } from "./db.js";
+import { migrate, seed } from "./db.js";
 import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view, handle_search_results } from "./pages/recipe.js";
 import { bot } from "./bot.js";
 
@@ -8,7 +8,7 @@ let port = parseInt(process.env.PORT, 10) || 6996;
 let subcommand = Bun.argv[2];
 if (subcommand) {
   if (subcommand === "migrate") migrate();
-  else if (subcommand === "seed") seed();
+  else if (subcommand === "seed") await seed();
   process.exit(0);
 }
 

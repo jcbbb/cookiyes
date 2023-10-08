@@ -6,6 +6,7 @@
     "seed": "bun run ./server.js seed"
   },
   "dependencies": {
+    "front-matter": "^4.0.2",
     "marked": "^9.0.3",
     "telegraf": "^4.14.0"
   }

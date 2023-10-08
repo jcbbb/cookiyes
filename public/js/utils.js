@@ -5,12 +5,16 @@ export async function get_content(url) {
   let request = new Request(url);
   let cache = await caches.open(CACHE_NAME);
   let cached_response = await cache.match(request);
-  if (cached_response && cached_response.ok) {
-    return await cached_response.text();
+  let network_promise = fetch(request).then((response) => {
+    cache.put(request, response.clone());
+    return response;
+  });
+
+  if (cached_response && cached_response.ok) return await cached_response.text();
+  else {
+    let result = await network_promise;
+    return await result.text();
   }
-  let response = await fetch(request);
-  await cache.put(request, response.clone());
-  return await response.text();
 }
 
 export async function option(promise) {
