@@ -42,7 +42,8 @@ export class Navigation {
   constructor() {
     this.entries = [];
     this.listeners = new Map([
-      ["navigate", new Set()]
+      ["navigate", new Set()],
+      ["navigatesuccess", new Set()]
     ]);
 
     this.navigating = null;
@@ -75,9 +76,10 @@ export class Navigation {
     let delta = is_back ? -1 : 1;
 
     let destination = this.entries[this.current_entry_index + delta];
-    await this.run_handlers("traverse", destination);
+    await this.run_navigate_handlers("traverse", destination);
     this.current_entry_index = this.current_entry_index + delta;
     this.save_state();
+    this.run_success_handlers();
   }
 
 
@@ -110,7 +112,7 @@ export class Navigation {
     this.entries = new_entries;
   }
 
-  async run_handlers(type = "push", destination, options = {}) {
+  async run_navigate_handlers(type = "push", destination, options = {}) {
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
@@ -127,10 +129,17 @@ export class Navigation {
     }
   }
 
+  run_success_handlers() {
+    let success_handlers = this.listeners.get("navigatesuccess");
+    for (let handle of success_handlers) {
+      handle({ currentTarget: this.entries[this.current_entry_index] });
+    }
+  }
+
   async navigate(url, options = {}) {
     this.clean();
     let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + (options.history === "replace" ? 0 : 1) });
-    await this.run_handlers(options.history, destination, options);
+    await this.run_navigate_handlers(options.history, destination, options);
     if (options.history === "replace") {
       window.history.replaceState(destination, "", destination.url)
       this.entries[this.current_entry_index] = destination;
@@ -141,25 +150,28 @@ export class Navigation {
     }
 
     this.save_state();
+    this.run_success_handlers();
   }
 
   async back() {
     if (!this.canGoBack) return;
 
     let destination = this.entries[this.current_entry_index - 1];
-    await this.run_handlers("traverse", destination);
+    await this.run_navigate_handlers("traverse", destination);
     this.current_entry_index -= 1;
-    this.save_state();
     window.history.back();
+    this.save_state();
+    this.run_success_handlers();
   }
 
   async forward() {
     if (!this.canGoForward) return;
     let destination = this.entries[this.current_entry_index + 1];
-    await this.run_handlers("traverse", destination);
+    await this.run_navigate_handlers("traverse", destination);
     this.current_entry_index += 1;
-    this.save_state();
     window.history.forward();
+    this.save_state();
+    this.run_success_handlers();
   }
 
   get currentEntry() {

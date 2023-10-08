@@ -252,7 +252,6 @@ class App {
         ctx.unmount = await mount_component(to_path);
         cleanups.push(ctx.view_transition(type, from_path));
         ctx.update_main_button(to_path);
-        ctx.update_back_button();
       }
     });
 
@@ -268,7 +267,7 @@ class App {
     if (!this.navigation) {
       let [module, err] = await option(import("/public/js/navigation.js"));
       if (err) {
-        throw new Error("Failed to load navigation.js");
+        throw new Error("Failed to load navigation.js", err.message);
       }
       this.navigation = module.navigation;
     }
@@ -283,6 +282,7 @@ class App {
   }
 
   async setup_navigation(cb) {
+    this.navigation.addEventListener("navigatesuccess", this.update_back_button.bind(this));
     this.navigation.addEventListener("navigate", (e) => {
       if (should_not_intercept(e)) return;
       let to = new URL(e.destination.url);
