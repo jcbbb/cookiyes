@@ -82,7 +82,7 @@ async function mount_component(path) {
       console.error(err.message);
       return;
     }
-    return module.mount();
+    return await module.mount();
   }
 }
 
@@ -270,7 +270,7 @@ class App {
       if (err) {
         throw new Error("Failed to load navigation.js");
       }
-      this.navigation = new module.Navigation();
+      this.navigation = module.navigation;
     }
 
     this.unmount = await mount_component(location.pathname);

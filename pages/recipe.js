@@ -159,7 +159,7 @@ export function handle_search_view(req) {
   let recipe_query = db.query("select * from recipes where name like ?1");
   let results = [];
   if (q) {
-    results = recipe_query(`%${q.toLowerCase()}%`);
+    results = recipe_query.all(`%${q.toLowerCase()}%`);
   }
   return new Response(render_search_view(results, q), { headers: { "Content-Type": "text/html" } });
 }

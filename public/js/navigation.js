@@ -74,20 +74,8 @@ export class Navigation {
     let is_back = this.current_entry_index > (e.state?.index || -1);
     let delta = is_back ? -1 : 1;
 
-    let navigate_handlers = this.listeners.get("navigate");
-
-    for (let handle of navigate_handlers) {
-      let event = new NavEvent({
-        destination: this.entries[this.current_entry_index + delta],
-        navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
-      });
-      await handle(event);
-      if (event.handler) {
-        await event.handler();
-      }
-    }
-
+    let destination = this.entries[this.current_entry_index + delta];
+    await this.run_handlers("traverse", destination);
     this.current_entry_index = this.current_entry_index + delta;
     this.save_state();
   }
@@ -122,14 +110,12 @@ export class Navigation {
     this.entries = new_entries;
   }
 
-  async navigate(url, options = {}) {
-    this.clean();
-    let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + 1 });
+  async run_handlers(type = "push", destination, options = {}) {
     let navigate_handlers = this.listeners.get("navigate");
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
-        navigationType: options.history || "push",
+        navigationType: type,
         info: options.info,
         from: this.entries[this.current_entry_index]
       });
@@ -139,11 +125,21 @@ export class Navigation {
         await event.handler();
       }
     }
+  }
 
-    if (options.history === "replace") window.history.replaceState(destination, "", destination.url);
-    else window.history.pushState(destination, "", destination.url);
-    this.current_entry_index += 1
-    this.entries.push(destination);
+  async navigate(url, options = {}) {
+    this.clean();
+    let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + (options.history === "replace" ? 0 : 1) });
+    await this.run_handlers(options.history, destination, options);
+    if (options.history === "replace") {
+      window.history.replaceState(destination, "", destination.url)
+      this.entries[this.current_entry_index] = destination;
+    } else {
+      window.history.pushState(destination, "", destination.url);
+      this.current_entry_index += 1;
+      this.entries.push(destination);
+    }
+
     this.save_state();
   }
 
@@ -151,21 +147,7 @@ export class Navigation {
     if (!this.canGoBack) return;
 
     let destination = this.entries[this.current_entry_index - 1];
-    let navigate_handlers = this.listeners.get("navigate");
-    for (let handle of navigate_handlers) {
-      let event = new NavEvent({
-        destination,
-        navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
-      });
-
-      await handle(event);
-
-      if (event.handler) {
-        await event.handler();
-      }
-    }
-
+    await this.run_handlers("traverse", destination);
     this.current_entry_index -= 1;
     this.save_state();
     window.history.back();
@@ -174,20 +156,7 @@ export class Navigation {
   async forward() {
     if (!this.canGoForward) return;
     let destination = this.entries[this.current_entry_index + 1];
-    let navigate_handlers = this.listeners.get("navigate");
-    for (let handle of navigate_handlers) {
-      let event = new NavEvent({
-        destination,
-        navigationType: "traverse",
-        from: this.entries[this.current_entry_index]
-      });
-
-      await handle(event);
-      if (event.handler) {
-        await event.handler();
-      }
-    }
-
+    await this.run_handlers("traverse", destination);
     this.current_entry_index += 1;
     this.save_state();
     window.history.forward();
@@ -205,3 +174,5 @@ export class Navigation {
     return this.current_entry_index !== -1 && this.current_entry_index < this.entries.length - 1;
   }
 }
+
+export let navigation = new Navigation();
