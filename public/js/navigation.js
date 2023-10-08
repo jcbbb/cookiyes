@@ -56,10 +56,13 @@ export class Navigation {
 
     this.save_state();
 
-    window.addEventListener("popstate", async (e) => {
-      if (this.navigating) await this.navigating;
-      this.navigating = this.on_popstate(e);
-    })
+    window.addEventListener("load", () => {
+      if (document.readyState !== "complete") {
+        setTimeout(() => {
+          window.addEventListener("popstate", this.on_popstate.bind(this), false);
+        }, 0);
+      } else window.addEventListener("popstate", this.on_popstate.bind(this), false);
+    });
 
     document.addEventListener("click", async (e) => {
       let anchor = e.target.closest("a");
@@ -72,6 +75,11 @@ export class Navigation {
   }
 
   async on_popstate(e) {
+    if (this.navigating) await this.navigating;
+    this.navigating = this.on_popstate_impl(e);
+  }
+
+  async on_popstate_impl(e) {
     let is_back = this.current_entry_index > (e.state?.index || -1);
     let delta = is_back ? -1 : 1;
 
