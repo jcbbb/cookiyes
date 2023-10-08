@@ -55,7 +55,8 @@ export async function* read_recipes(folder = "./content") {
   if (!files.length) return;
 
   for (let path of files) {
-    let text = await Bun.file(folder + "/" + path).text();
+    let fd = Bun.file(folder + "/" + path);
+    let text = await Bun.readableStreamToText(fd.stream());
     let content = fm(text);
     let html = marked.parse(content.body);
     yield { html, attributes: content.attributes };
