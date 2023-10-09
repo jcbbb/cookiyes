@@ -149,6 +149,7 @@ class App {
       } break;
       case RECIPE_REGEX.test(whatever): {
         let delete_form = document.getElementById("delete-recipe-form");
+        if (!delete_form) break;
         let formdata = new FormData(delete_form);
         let user_id = formdata.get("user_id");
         if (this.user && this.user.id == user_id) {
