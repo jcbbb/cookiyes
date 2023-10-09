@@ -3,20 +3,23 @@ const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
 
 export async function get_content(url) {
   let request = new Request(url);
-  console.log("OPENING CACHE", window.caches);
-  let cache = await window.caches.open(CACHE_NAME).catch(console.log);
-  console.log({ cache });
-  let cached_response = await cache.match(request);
-  console.log({ cached_response });
-  let network_promise = fetch(request).then((response) => {
-    cache.put(request, response.clone());
-    return response;
-  });
+  try {
+    let cache = await window.caches.open(CACHE_NAME).catch(console.log);
+    let cached_response = await cache.match(request);
+    let network_promise = fetch(request).then((response) => {
+      cache.put(request, response.clone());
+      return response;
+    });
 
-  if (cached_response && cached_response.ok) return await cached_response.text();
-  else {
-    let result = await network_promise;
-    return await result.text();
+    if (cached_response && cached_response.ok) return await cached_response.text();
+    else {
+      let result = await network_promise;
+      return await result.text();
+    }
+  } catch (err) {
+    // if there is some error, just fetch it again. Usually cannot access cache api from iframe;
+    let response = await fetch(request);
+    return await response.text();
   }
 }
 
