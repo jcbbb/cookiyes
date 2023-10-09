@@ -20,8 +20,10 @@ export function render_single(recipe) {
         </div>
       </header>
       <main class="flex flex-col px-6 lg:px-0">
-        <form id="delete-recipe-form" action="/recipes/${recipe.id}" api_method="DELETE" method="POST">
+        <form id="delete-recipe-form" action="/recipes/${recipe.id}" method="POST">
           <input type="hidden" name="user_id" value="${recipe.user_id || ''}" />
+          <input type="hidden" name="_action" value="delete" />
+          <button>Delete</button>
         </form>
         <section class="recipe-instructions">
         ${recipe.instructions}
@@ -86,8 +88,10 @@ export function render_new(categories) {
 
 export function handle_single_recipe_view(req) {
   let id = req.params.id;
-  let recipe_query = db.query("select * from recipes where id = $id");
-  return new Response(render_single(recipe_query.get({ $id: id })), { headers: { "Content-Type": "text/html" } });
+  let recipe_query = db.query("select * from recipes where id = ?1");
+  let recipe = recipe_query.get(id);
+  if (!recipe) return Response.redirect("/404");
+  return new Response(render_single(recipe), { headers: { "Content-Type": "text/html" } });
 }
 
 export function handle_new_recipe_view() {
@@ -115,9 +119,17 @@ export async function handle_new_recipe(req) {
 
 export async function handle_recipe_delete(req) {
   let id = req.params.id;
-  let remove_query = db.query("delete from recipes where id = ?1");
-  remove_query.run(id);
-  return Response.redirect("/");
+  let formdata = await req.formData();
+  let action = formdata.get("_action");
+  switch (action) {
+  case "delete": {
+    let remove_query = db.query("delete from recipes where id = ?1");
+    remove_query.run(id);
+    return Response.redirect("/");
+  } break;
+  default:
+    return new Response("unhandled", { status: 500 });
+  }
 }
 
 export function render_search_view(recipes, q = "") {

@@ -144,13 +144,14 @@ class App {
       } break;
       case whatever === "recipe-delete-failed": {
         text = "DELETE RECIPE";
+        color = "#fb4934";
         show_progress = false;
       } break;
       case RECIPE_REGEX.test(whatever): {
         let delete_form = document.getElementById("delete-recipe-form");
         let formdata = new FormData(delete_form);
         let user_id = formdata.get("user_id");
-        if (user_id == this.user.id) {
+        if (this.user && this.user.id == user_id) {
           text = "DELETE RECIPE";
           color = "#fb4934";
           main_btn_fn = this.on_recipe_delete;
@@ -187,8 +188,7 @@ class App {
   async delete_recipe() {
     let delete_form = document.getElementById("delete-recipe-form");
     this.update_main_button("recipe-delete-intent");
-    let method = delete_form.getAttribute("api_method") || delete_form.method;
-    let response = await this.request(delete_form.action, { method });
+    let response = await this.request(delete_form.action, { method: delete_form.method, body: new FormData(delete_form) });
     if (!response.ok) {
       this.update_main_button("recipe-delete-failed");
       this.haptic_feedback.notificationOccurred("error");
@@ -355,7 +355,4 @@ class App {
   }
 }
 
-let app = new App(Telegram.WebApp);
-setInterval(() => {
-  console.log(app);
-}, 5000);
+new App(Telegram.WebApp);

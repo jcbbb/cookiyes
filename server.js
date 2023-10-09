@@ -37,9 +37,7 @@ let handlers = {
     "^/search$": handle_search_view,
   },
   "POST": {
-    "^/recipes": handle_new_recipe,
-  },
-  "DELETE": {
+    "^/recipes$": handle_new_recipe,
     "^/recipes/(?<id>\\w+)$": handle_recipe_delete,
   }
 }
