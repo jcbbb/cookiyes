@@ -23,7 +23,6 @@ export function render_single(recipe) {
         <form id="delete-recipe-form" action="/recipes/${recipe.id}" method="POST">
           <input type="hidden" name="user_id" value="${recipe.user_id || ''}" />
           <input type="hidden" name="_action" value="delete" />
-          <button>Delete</button>
         </form>
         <section class="recipe-instructions">
         ${recipe.instructions}
