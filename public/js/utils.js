@@ -1,22 +1,36 @@
 const CACHE_VERSION = 0;
 const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
 
+async function storage_access_available() {
+  try {
+    let has_access = await document.hasStorageAccess();
+    if (has_access) return has_access;
+    await document.requestStorageAccess();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 export async function get_content(url) {
   let request = new Request(url);
-  let response = await fetch(request);
-  return await response.text();
-  // let cache = await caches.open(CACHE_NAME);
-  // let cached_response = await cache.match(request);
-  // let network_promise = fetch(request).then((response) => {
-  //   cache.put(request, response.clone());
-  //   return response;
-  // });
-
-  // if (cached_response && cached_response.ok) return await cached_response.text();
-  // else {
-  //   let result = await network_promise;
-  //   return await result.text();
-  // }
+  let can_access_storage = await storage_access_available();
+  if (can_access_storage) {
+    let cache = await caches.open(CACHE_NAME);
+    let cached_response = await cache.match(request);
+    let network_promise = fetch(request).then((response) => {
+      cache.put(request, response.clone());
+      return response;
+    });
+    if (cached_response && cached_response.ok) return await cached_response.text();
+    else {
+      let result = await network_promise;
+      return await result.text();
+    }
+  } else {
+    let response = await fetch(request);
+    return await response.text();
+  }
 }
 
 export async function option(promise) {
