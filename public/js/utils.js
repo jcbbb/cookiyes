@@ -1,7 +1,7 @@
 const CACHE_VERSION = 0;
 const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
 
-async function storage_access_available() {
+export async function storage_access_available() {
   try {
     let has_access = await document.hasStorageAccess();
     if (has_access) return has_access;
@@ -12,9 +12,9 @@ async function storage_access_available() {
   }
 }
 
-export async function get_content(url) {
+export async function get_content(url, can_access_storage = false) {
+  console.log(can_access_storage);
   let request = new Request(url);
-  let can_access_storage = await storage_access_available();
   if (can_access_storage) {
     let cache = await caches.open(CACHE_NAME);
     let cached_response = await cache.match(request);

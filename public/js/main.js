@@ -1,4 +1,4 @@
-import { option, get_content, disable_form } from "/public/js/utils.js";
+import { option, get_content, disable_form, storage_access_available } from "/public/js/utils.js";
 
 let parser = new DOMParser();
 
@@ -98,6 +98,7 @@ class App {
 
     this.main_btn = webapp.MainButton;
     this.back_btn = webapp.BackButton;
+    this.can_access_storage = false;
     this.unmount;
 
     this.setup();
@@ -277,7 +278,7 @@ class App {
   }
 
   async on_navigate({ from_path, to_path, is_back }) {
-    let content = await get_content(to_path);
+    let content = await get_content(to_path, this.can_access_storage);
     let doc = parser.parseFromString(content, "text/html");
     let type = get_nav_type(from_path, to_path);
 
@@ -316,6 +317,7 @@ class App {
     }
 
     this.unmount = await mount_component(location.pathname);
+    this.can_access_storage = await storage_access_available();
     this.webapp.ready();
     this.setup_navigation(this.on_navigate.bind(this));
     this.update_main_button();
