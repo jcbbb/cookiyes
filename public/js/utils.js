@@ -4,7 +4,7 @@ const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
 export async function get_content(url) {
   let request = new Request(url);
   console.log("OPENING CACHE", window.caches);
-  let cache = await window.caches.open(CACHE_NAME);
+  let cache = await window.caches.open(CACHE_NAME).catch(console.log);
   console.log({ cache });
   let cached_response = await cache.match(request);
   console.log({ cached_response });
