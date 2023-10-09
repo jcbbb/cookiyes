@@ -139,11 +139,11 @@ class App {
         show_progress = false;
       } break;
       case whatever === "recipe-delete-intent": {
-        test = "DELETING";
+        text = "DELETING";
         show_progress = true;
       } break;
       case whatever === "recipe-delete-failed": {
-        test = "DELETE RECIPE";
+        text = "DELETE RECIPE";
         show_progress = false;
       } break;
       case RECIPE_REGEX.test(whatever): {
