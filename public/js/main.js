@@ -119,7 +119,7 @@ class App {
   }
 
   update_main_button(whatever) {
-    let text;
+    let text = this.main_btn.text;
     let color = this.webapp.themeParams.button_color;
     let text_color = this.webapp.themeParams.button_text_color;
     let is_visible = true;
@@ -147,9 +147,14 @@ class App {
         show_progress = false;
       } break;
       case RECIPE_REGEX.test(whatever): {
-        text = "DELETE RECIPE";
-        color = "#fb4934";
-        main_btn_fn = this.on_recipe_delete;
+        let delete_form = document.getElementById("delete-recipe-form");
+        let formdata = new FormData(delete_form);
+        let user_id = formdata.get("user_id");
+        if (user_id == this.user.id) {
+          text = "DELETE RECIPE";
+          color = "#fb4934";
+          main_btn_fn = this.on_recipe_delete;
+        }
       } break;
       default:
         text = "NEW RECIPE";

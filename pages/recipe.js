@@ -20,7 +20,9 @@ export function render_single(recipe) {
         </div>
       </header>
       <main class="flex flex-col px-6 lg:px-0">
-        <form id="delete-form" action="/recipes/${recipe.id}" api_method="DELETE" method="POST"></form>
+        <form id="delete-recipe-form" action="/recipes/${recipe.id}" api_method="DELETE" method="POST">
+          <input type="hidden" name="user_id" value="${recipe.user_id || ''}" />
+        </form>
         <section class="recipe-instructions">
         ${recipe.instructions}
         </section>
