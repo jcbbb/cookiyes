@@ -1,35 +1,22 @@
 const CACHE_VERSION = 0;
 const CACHE_NAME = `cookiyes-v${CACHE_VERSION}`;
 
-export async function storage_access_available() {
-  try {
-    let has_access = await document.hasStorageAccess();
-    if (has_access) return has_access;
-    await document.requestStorageAccess();
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
-export async function get_content(url, can_access_storage = false) {
-  console.log(can_access_storage);
+export async function get_content(url) {
   let request = new Request(url);
-  if (can_access_storage) {
-    let cache = await caches.open(CACHE_NAME);
-    let cached_response = await cache.match(request);
-    let network_promise = fetch(request).then((response) => {
-      cache.put(request, response.clone());
-      return response;
-    });
-    if (cached_response && cached_response.ok) return await cached_response.text();
-    else {
-      let result = await network_promise;
-      return await result.text();
-    }
-  } else {
-    let response = await fetch(request);
-    return await response.text();
+  console.log("OPENING CACHE", window.caches);
+  let cache = await window.caches.open(CACHE_NAME);
+  console.log({ cache });
+  let cached_response = await cache.match(request);
+  console.log({ cached_response });
+  let network_promise = fetch(request).then((response) => {
+    cache.put(request, response.clone());
+    return response;
+  });
+
+  if (cached_response && cached_response.ok) return await cached_response.text();
+  else {
+    let result = await network_promise;
+    return await result.text();
   }
 }
 
