@@ -148,7 +148,7 @@ class App {
       case RECIPE_REGEX.test(whatever): {
         text = "DELETE RECIPE";
         color = "#fb4934";
-        main_btn_fn = this.webapp.showConfirm("Are you sure you want to delete this recipe?", this.on_recipe_delete);
+        main_btn_fn = this.on_recipe_delete;
       } break;
       default:
         text = "NEW RECIPE";
@@ -170,19 +170,25 @@ class App {
     this.navigation.navigate("/recipes/new");
   }
 
-  async on_recipe_delete(confirmed) {
-    if (confirmed) {
-      let delete_form = document.getElementById("delete-recipe-form");
-      this.update_main_button("recipe-delete-intent");
-      let method = delete_form.getAttribute("api_method") || delete_form.method;
-      let response = await this.request(delete_form.action, { method });
-      if (!response.ok) {
-        this.update_main_button("recipe-delete-failed");
-        this.haptic_feedback.notificationOccurred("error");
-      } else if (response.redirected) {
-        this.haptic_feedback.notificationOccurred("success");
-        this.navigation.navigate(response.url);
-      }
+  on_recipe_delete() {
+    if (this.webapp.isVersionAtLeast("6.2")) {
+      this.webapp.showConfirm("Are you sure you want to delete this recipe?", (confirmed) => {
+        if (confirmed) this.delete_recipe();
+      });
+    } else this.delete_recipe();
+  }
+
+  async delete_recipe() {
+    let delete_form = document.getElementById("delete-recipe-form");
+    this.update_main_button("recipe-delete-intent");
+    let method = delete_form.getAttribute("api_method") || delete_form.method;
+    let response = await this.request(delete_form.action, { method });
+    if (!response.ok) {
+      this.update_main_button("recipe-delete-failed");
+      this.haptic_feedback.notificationOccurred("error");
+    } else if (response.redirected) {
+      this.haptic_feedback.notificationOccurred("success");
+      this.navigation.navigate(response.url);
     }
   }
 
