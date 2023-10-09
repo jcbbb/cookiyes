@@ -120,6 +120,7 @@ class App {
 
   update_main_button(whatever) {
     let text;
+    let color;
     let is_visible = true;
     let show_progress = false;
     let main_btn_fn = null;
@@ -133,8 +134,21 @@ class App {
         show_progress = true;
       } break;
       case whatever === "recipe-save-failed": {
-        text = "SAVE RECIPE"
+        text = "SAVE RECIPE";
         show_progress = false;
+      } break;
+      case whatever === "recipe-delete-intent": {
+        test = "DELETING";
+        show_progress = true;
+      } break;
+      case whatever === "recipe-delete-failed": {
+        test = "DELETE RECIPE";
+        show_progress = false;
+      } break;
+      case RECIPE_REGEX.test(whatever): {
+        text = "DELETE RECIPE";
+        color = "#fb4934";
+        main_btn_fn = this.webapp.showConfirm("Are you sure you want to delete this recipe?", this.on_recipe_delete);
       } break;
       default:
         text = "NEW RECIPE";
@@ -147,13 +161,29 @@ class App {
       this.main_btn.onClick(this.last_main_btn_fn);
     }
 
-    this.main_btn.setParams({ text, isVisible: is_visible });
+    this.main_btn.setParams({ text, isVisible: is_visible, color });
     if (show_progress) this.main_btn.showProgress();
     else this.main_btn.hideProgress();
   }
 
   on_new_recipe() {
     this.navigation.navigate("/recipes/new");
+  }
+
+  async on_recipe_delete(confirmed) {
+    if (confirmed) {
+      let delete_form = document.getElementById("delete-recipe-form");
+      this.update_main_button("recipe-delete-intent");
+      let method = delete_form.getAttribute("api_method") || delete_form.method;
+      let response = await this.request(delete_form.action, { method });
+      if (!response.ok) {
+        this.update_main_button("recipe-delete-failed");
+        this.haptic_feedback.notificationOccurred("error");
+      } else if (response.redirected) {
+        this.haptic_feedback.notificationOccurred("success");
+        this.navigation.navigate(response.url);
+      }
+    }
   }
 
   async request(url, options) {

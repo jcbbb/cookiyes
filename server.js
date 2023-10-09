@@ -1,6 +1,14 @@
 import { handle_home_view } from "./pages/index.js";
 import { migrate, seed } from "./db.js";
-import { handle_single_recipe_view, handle_new_recipe_view, handle_new_recipe, handle_category_view, handle_search_view, handle_search_results } from "./pages/recipe.js";
+import {
+  handle_single_recipe_view,
+  handle_new_recipe_view,
+  handle_new_recipe,
+  handle_category_view,
+  handle_search_view,
+  handle_search_results,
+  handle_recipe_delete
+} from "./pages/recipe.js";
 import { bot } from "./bot.js";
 
 let port = parseInt(process.env.PORT, 10) || 6996;
@@ -30,6 +38,9 @@ let handlers = {
   },
   "POST": {
     "^/recipes": handle_new_recipe,
+  },
+  "DELETE": {
+    "^/recipes/(?<id>\\w+)$": handle_recipe_delete,
   }
 }
 

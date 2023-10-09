@@ -20,6 +20,7 @@ export function render_single(recipe) {
         </div>
       </header>
       <main class="flex flex-col px-6 lg:px-0">
+        <form id="delete-form" action="/recipes/${recipe.id}" api_method="DELETE" method="POST"></form>
         <section class="recipe-instructions">
         ${recipe.instructions}
         </section>
@@ -71,8 +72,8 @@ export function render_new(categories) {
             <span class="text-sm font-medium uppercase">Category</span>
             <select class="form-control mt-2 appearance-none" name="category_id">
               ${categories.map((category) => {
-      return `<option value="${category.id}">${category.name}</option>`
-    }).join("")}
+                return `<option value="${category.id}">${category.name}</option>`
+              }).join("")}
             </select>
             <small></small>
           </label>
@@ -108,6 +109,13 @@ export async function handle_new_recipe(req) {
 
   insert_recipe_category.run(id, data.category_id);
   return Response.redirect(`/recipes/${id}`);
+}
+
+export async function handle_recipe_delete(req) {
+  let id = req.params.id;
+  let remove_query = db.query("delete from recipes where id = ?1");
+  remove_query.run(id);
+  return Response.redirect("/");
 }
 
 export function render_search_view(recipes, q = "") {
