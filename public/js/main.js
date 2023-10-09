@@ -120,7 +120,8 @@ class App {
 
   update_main_button(whatever) {
     let text;
-    let color;
+    let color = this.webapp.themeParams.button_color;
+    let text_color = this.webapp.themeParams.button_text_color;
     let is_visible = true;
     let show_progress = false;
     let main_btn_fn = null;
@@ -161,7 +162,7 @@ class App {
       this.main_btn.onClick(this.last_main_btn_fn);
     }
 
-    this.main_btn.setParams({ text, isVisible: is_visible, color });
+    this.main_btn.setParams({ text, isVisible: is_visible, color, text_color });
     if (show_progress) this.main_btn.showProgress();
     else this.main_btn.hideProgress();
   }
