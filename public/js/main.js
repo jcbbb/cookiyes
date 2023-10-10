@@ -336,8 +336,8 @@ class App {
         let url = new URL(e.from.url);
         from_path = url.pathname + url.search;
       }
+      let ctx = this;
       let is_back = this.is_back_navigation(e);
-
       if (to.pathname.startsWith("/recipes") || to.pathname.startsWith("/c") || to.pathname.startsWith("/search") || to.pathname === "/") {
         e.intercept({
           scroll: "manual",
@@ -346,7 +346,9 @@ class App {
             let transition = await cb({ from_path, to_path: to.pathname + to.search, is_back })
             await transition.updateCallbackDone;
             e.scroll();
-            if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
+            if (ctx.navigation_api_supported) {
+              if (e.navigationType === "push" || e.navigationType === "replace") window.scrollTo(0, 0);
+            }
 
             return transition;
           }

@@ -28,13 +28,17 @@ class NavEntry {
     key = Math.random().toString(32).slice(2),
     id = Math.random().toString(32).slice(2),
     index = -1,
-    sameDocument
+    sameDocument,
+    scroll_top = 0,
+    height = 0
   }) {
     this.url = url;
     this.key = key;
     this.id = id;
     this.index = index;
     this.sameDocument = sameDocument;
+    this.scroll_top = scroll_top;
+    this.height = height;
   }
 }
 
@@ -56,13 +60,12 @@ export class Navigation {
 
     this.save_state();
 
-    window.addEventListener("load", () => {
-      if (document.readyState !== "complete") {
-        setTimeout(() => {
-          window.addEventListener("popstate", this.on_popstate.bind(this), false);
-        }, 0);
-      } else window.addEventListener("popstate", this.on_popstate.bind(this), false);
-    });
+    window.history.scrollRestoration = "manual";
+    if (document.readyState !== "complete") {
+      setTimeout(() => {
+        window.addEventListener("popstate", this.on_popstate.bind(this));
+      }, 0);
+    } else window.addEventListener("popstate", this.on_popstate.bind(this));
 
     document.addEventListener("click", async (e) => {
       let anchor = e.target.closest("a");
@@ -83,8 +86,14 @@ export class Navigation {
     let is_back = this.current_entry_index > (e.state?.index || -1);
     let delta = is_back ? -1 : 1;
 
+    let current = this.entries[this.current_entry_index];
     let destination = this.entries[this.current_entry_index + delta];
+    if (current && current.scroll_top) {
+      document.body.style.height = current.height + "px";
+      window.scrollTo(0, current.scroll_top);
+    }
     await this.run_navigate_handlers("traverse", destination);
+    document.body.style.height = "auto";
     this.current_entry_index = this.current_entry_index + delta;
     this.save_state();
     this.run_success_handlers();
@@ -132,6 +141,7 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
+        if (type === "push" || type === "replace") window.scrollTo(0, 0);
         await event.handler();
       }
     }
@@ -146,7 +156,12 @@ export class Navigation {
 
   async navigate(url, options = {}) {
     this.clean();
-    let destination = new NavEntry({ url: new URL(url, window.location.origin).href, index: this.current_entry_index + (options.history === "replace" ? 0 : 1) });
+    let destination = new NavEntry({
+      url: new URL(url, window.location.origin).href,
+      scroll_top: window.scrollY,
+      height: document.body.offsetHeight,
+      index: this.current_entry_index + (options.history === "replace" ? 0 : 1),
+    });
     await this.run_navigate_handlers(options.history, destination, options);
     if (options.history === "replace") {
       window.history.replaceState(destination, "", destination.url)
