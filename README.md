@@ -1,9 +1,10 @@
 ## Mini Recipe App
 
-This is simple mini recipe app for Telegram. There not many features, in fact, only two;
+This is simple mini recipe app for Telegram. There not many features, in fact, only three;
 
-- You can create recipes. When creating recipes, you can use markdown
-- You can read recipes
+- You can create recipes. When creating recipes, you can use markdown;
+- You can delete your own recipes;
+- You can read recipes;
 
 ### Setup
 
