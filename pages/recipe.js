@@ -141,7 +141,7 @@ export function render_search_view(recipes, q = "") {
     content: `
       <header class="pl-6 pr-6 pt-10 pb-8 lg:px-0 main-header">
         <form action="/search/results">
-          <input type="search" name="q" class="form-control" value="${q}" id="search-input" placeholder="Search for food" autofocus spellcheck="false" />
+          <input type="search" name="q" class="form-control" value="${q}" id="search-input" placeholder="Search for food" spellcheck="false" />
         </form>
       </header>
       <main class="px-6 lg:px-0">
