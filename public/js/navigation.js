@@ -74,10 +74,11 @@ export class Navigation {
         if (this.navigating) await this.navigating;
         this.navigating = this.navigate(anchor.href);
       }
-    })
+    });
   }
 
   async on_popstate(e) {
+    console.log("ON POPSTATE CALLED");
     if (this.navigating) await this.navigating;
     this.navigating = this.on_popstate_impl(e);
   }
@@ -88,6 +89,7 @@ export class Navigation {
 
     let current = this.entries[this.current_entry_index];
     let destination = this.entries[this.current_entry_index + delta];
+    console.log({ destination });
     if (current && current.scroll_top) {
       document.body.style.height = current.height + "px";
       window.scrollTo(0, current.scroll_top);
