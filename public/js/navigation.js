@@ -80,7 +80,6 @@ export class Navigation {
   }
 
   async on_popstate(e) {
-    console.log("ON POPSTATE CALLED");
     if (this.navigating) await this.navigating;
     this.navigating = this.on_popstate_impl(e);
   }
@@ -90,9 +89,10 @@ export class Navigation {
     let delta = is_back ? -1 : 1;
 
     let current = this.entries[this.current_entry_index];
+    console.log({ current });
     let destination = this.entries[this.current_entry_index + delta];
-    console.log({ destination });
     if (current && current.scroll_top) {
+      console.log("RESTORING SCROLL POS");
       document.body.style.height = current.height + "px";
       window.scrollTo(0, current.scroll_top);
     }
