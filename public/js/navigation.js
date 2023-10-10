@@ -74,14 +74,14 @@ export class Navigation {
       if (anchor) {
         e.preventDefault();
         if (this.navigating) await this.navigating;
-        this.navigating = this.navigate(anchor.href);
+        this.navigating = this.navigate(anchor.href).finally(() => this.navigating = null);
       }
     });
   }
 
   async on_popstate(e) {
     if (this.navigating) await this.navigating;
-    this.navigating = this.on_popstate_impl(e);
+    this.navigating = this.on_popstate_impl(e).finally(() => this.navigating = null);
   }
 
   async on_popstate_impl(e) {
