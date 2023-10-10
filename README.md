@@ -27,5 +27,7 @@ Bun is used as replacement for Node.js, because why not. For templating, I just 
 
 ### Issue
 
-For this application, I am using relatively new Web APIs, such as [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) and [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API). 
+1. For this application, I am using relatively new Web APIs, such as [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) and [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API). 
 Some browser engines, mainly WebKit don't not support these features, and I tried to polyfil Navigation API with [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API) and View Transitions with simple CSS animations. For Telegram clients that use WebKit, page transitions aren't as good as on Android that use Chromium.
+
+2. I am caching every page request with [stale-while-revalidate](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) strategy, so if you create a new recipe and go back to homepage, it might not be there. It will appear after reload.
