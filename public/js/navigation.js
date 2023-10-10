@@ -89,10 +89,8 @@ export class Navigation {
     let delta = is_back ? -1 : 1;
 
     let current = this.entries[this.current_entry_index];
-    console.log({ current });
     let destination = this.entries[this.current_entry_index + delta];
     if (current && current.scroll_top) {
-      console.log("RESTORING SCROLL POS");
       document.body.style.height = current.height + "px";
       window.scrollTo(0, current.scroll_top);
     }
@@ -180,25 +178,14 @@ export class Navigation {
     this.run_success_handlers();
   }
 
-  async back() {
+  back() {
     if (!this.canGoBack) return;
-
-    let destination = this.entries[this.current_entry_index - 1];
-    await this.run_navigate_handlers("traverse", destination);
-    this.current_entry_index -= 1;
     window.history.back();
-    this.save_state();
-    this.run_success_handlers();
   }
 
-  async forward() {
+  forward() {
     if (!this.canGoForward) return;
-    let destination = this.entries[this.current_entry_index + 1];
-    await this.run_navigate_handlers("traverse", destination);
-    this.current_entry_index += 1;
     window.history.forward();
-    this.save_state();
-    this.run_success_handlers();
   }
 
   get currentEntry() {
