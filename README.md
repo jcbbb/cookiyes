@@ -17,6 +17,14 @@ bun run seed
 bun run run
 ```
 
+
+### Tech stack
+
+- Bun
+- JavaScript, CSS, HTML
+
+Bun is used as replacement for Node.js, because why not. For templating, I just used plain JavaScript functions that just return [template strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
+
 ### Issue
 
 For this application, I am using relatively new Web APIs, such as [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) and [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API). 
