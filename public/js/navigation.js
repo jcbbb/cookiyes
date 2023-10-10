@@ -61,14 +61,7 @@ export class Navigation {
     this.save_state();
 
     window.history.scrollRestoration = "manual";
-    window.addEventListener("load", () => {
-      if (document.readyState !== "complete") {
-        setTimeout(() => {
-          window.addEventListener("popstate", this.on_popstate.bind(this), false);
-        }, 0);
-      } else window.addEventListener("popstate", this.on_popstate.bind(this), false);
-    });
-
+    window.addEventListener("popstate", this.on_popstate.bind(this), false);
     document.addEventListener("click", async (e) => {
       let anchor = e.target.closest("a");
       if (anchor) {
