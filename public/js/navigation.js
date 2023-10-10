@@ -131,6 +131,7 @@ export class Navigation {
 
   async run_navigate_handlers(type = "push", destination, options = {}) {
     let navigate_handlers = this.listeners.get("navigate");
+    if (type === "push" || type === "replace") window.scrollTo(0, 0);
     for (let handle of navigate_handlers) {
       let event = new NavEvent({
         destination,
@@ -141,7 +142,6 @@ export class Navigation {
 
       await handle(event);
       if (event.handler) {
-        if (type === "push" || type === "replace") window.scrollTo(0, 0);
         await event.handler();
       }
     }
