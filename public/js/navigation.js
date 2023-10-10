@@ -61,11 +61,13 @@ export class Navigation {
     this.save_state();
 
     window.history.scrollRestoration = "manual";
-    if (document.readyState !== "complete") {
-      setTimeout(() => {
-        window.addEventListener("popstate", this.on_popstate.bind(this));
-      }, 0);
-    } else window.addEventListener("popstate", this.on_popstate.bind(this));
+    window.addEventListener("load", () => {
+      if (document.readyState !== "complete") {
+        setTimeout(() => {
+          window.addEventListener("popstate", this.on_popstate.bind(this), false);
+        }, 0);
+      } else window.addEventListener("popstate", this.on_popstate.bind(this), false);
+    });
 
     document.addEventListener("click", async (e) => {
       let anchor = e.target.closest("a");
